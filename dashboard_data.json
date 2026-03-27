@@ -1,21 +1,21 @@
 {
   "generated": "2026-03-27",
-  "generated_time": "2026-03-27 02:06:05",
+  "generated_time": "2026-03-27 10:15:01",
   "current": {
-    "gcpi": 33.72,
-    "effective_gcpi": 37.77,
+    "gcpi": 33.81,
+    "effective_gcpi": 37.87,
     "grci": 0.2,
-    "cci": 0.6023,
+    "cci": 0.6493,
     "cci_direction": "DOWNSIDE ALIGNED",
-    "alpha": 0.46062477468852947,
+    "alpha": 0.45962819356329354,
     "phase": 2,
     "active_rule": "STANDARD MONITORING",
-    "rbi_room": 3.5653999999999995,
+    "rbi_room": 3.518533333333334,
     "rbi_constraint": 1,
     "nifty": 23306.44921875,
     "sp500": 6477.16015625,
-    "dxy": 99.85800170898438,
-    "brent": 100.88999938964844,
+    "dxy": 99.9000015258789,
+    "brent": 108.01000213623047,
     "vix": 27.440000534057617,
     "india_vix": 24.639999389648438,
     "usdinr": 94.6937026977539,
@@ -312,7 +312,7 @@
       54.01,
       54.22,
       33.91,
-      33.72
+      33.81
     ],
     "eff_gcpi": [
       16.42,
@@ -457,7 +457,7 @@
       63.09,
       63.33,
       37.98,
-      37.77
+      37.87
     ],
     "zones": {
       "green": [
@@ -478,8 +478,8 @@
       ]
     },
     "current": {
-      "gcpi": 33.72,
-      "eff_gcpi": 37.77,
+      "gcpi": 33.81,
+      "eff_gcpi": 37.87,
       "date": "2026-03-27",
       "phase": 2
     }
@@ -811,14 +811,14 @@
     ],
     "scores": [
       0.38,
-      0.3259,
+      0.3276,
       0.0108,
       0.6452,
-      0.402,
+      0.4081,
       0.258
     ],
     "date": "2026-03-27",
-    "alpha": 0.4606
+    "alpha": 0.4596
   },
   "chart4_heatmap": {
     "title": "Global Stretch Heatmap \u2014 Z-Scores (20D)",
@@ -1497,29 +1497,29 @@
     "title": "CCI Commodity Snapshot",
     "segments": {
       "BRENT": {
-        "price": 100.88999938964844,
-        "z20": 1.36
+        "price": 108.01000213623047,
+        "z20": 1.82
       },
       "GOLD": {
-        "price": 4408.60009765625,
-        "z20": -3.07
+        "price": 4375.5,
+        "z20": -3.14
       },
       "COPPER": {
-        "price": 5.499000072479248,
-        "z20": -2.03
+        "price": 5.446499824523926,
+        "z20": -2.27
       },
       "WHEAT": {
-        "price": 604.75,
-        "z20": 1.31
+        "price": 605.0,
+        "z20": 1.32
       },
       "SOYBEAN": {
-        "price": 1172.5,
-        "z20": 0.3
+        "price": 1173.75,
+        "z20": 0.35
       }
     },
-    "cci_score": 0.6023,
+    "cci_score": 0.6493,
     "cci_direction": "DOWNSIDE ALIGNED",
-    "rbi_room": 3.6,
+    "rbi_room": 3.5,
     "date": "2026-03-27"
   },
   "chart7_phase": {
