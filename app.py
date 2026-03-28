@@ -35,14 +35,44 @@ def load_data():
 data = load_data()
 
 # ── SAFE GETTERS ──────────────────────────────────────────────────────────────
+# Your JSON has a nested structure: data["current"]["gcpi"] etc.
+# These helpers read from the right place automatically.
+
+curr = data.get("current", {})          # main current readings
+c3   = data.get("chart3_radar", {})     # GCPI 6 dimensions
+c4   = data.get("chart4_heatmap", {})   # Z-scores heatmap
+c6   = data.get("chart6_cci",    {})    # CCI segments
+hist = data.get("chart1_gcpi_trend", {})# history for signal log
+
 def g(key, default="—"):
-    return data.get(key, default)
+    # Check current{} first, then top-level
+    v = curr.get(key, data.get(key, default))
+    return v if v is not None else default
 
 def gf(key, default=0.0):
     try:
-        return float(data.get(key, default))
+        v = curr.get(key, data.get(key, default))
+        return float(v) if v is not None else default
     except:
         return default
+
+def gz(ticker):
+    """Get Z-score for a ticker from chart4 heatmap data."""
+    tickers = c4.get("tickers", [])
+    zscores = c4.get("z_scores", [])
+    try:
+        idx = tickers.index(ticker)
+        return float(zscores[idx])
+    except:
+        return 0.0
+
+def gz_zone(z):
+    """Convert z-score to zone label."""
+    if z <= -2.0: return "Sig. Dev. Downside"
+    if z <= -1.0: return "Mild Dev. Downside"
+    if z >= 2.0:  return "Sig. Dev. Upside"
+    if z >= 1.0:  return "Mild Dev. Upside"
+    return "Normal Range"
 
 # ── AI NARRATIVE ──────────────────────────────────────────────────────────────
 @st.cache_data(ttl=900)
@@ -63,9 +93,9 @@ def get_ai_narrative(gcpi, phase, grci, cci, alpha, run_context):
             "messages": [{
                 "role": "user",
                 "content": (
-                    f"Current reading: GCPI {gcpi} ({g('gcpi_zone','—')}), "
-                    f"Phase {phase}, GRCI {grci} ({g('grci_status','—')}), "
-                    f"CCI {cci} ({g('cci_status','—')}), Alpha {alpha} ({g('alpha_status','—')}). "
+                    f"Current reading: GCPI {gcpi:.1f}, "
+                    f"Phase {phase}, GRCI {grci:.3f}, "
+                    f"CCI {cci:.4f} ({cci_status}), Alpha {alpha:.3f}. "
                     f"Generate the regime narrative."
                 )
             }]
@@ -99,33 +129,126 @@ def phase_color(p):
               "4":"#ef4444","5":"#8b5cf6","6":"#ec4899"}
     return colors.get(str(p), "#94a3b8")
 
-# ── EXTRACT KEY VALUES ────────────────────────────────────────────────────────
-gcpi_val     = gf("gcpi", 54.22)
-eff_gcpi     = gf("effective_gcpi", 63.33)
-grci_val     = gf("grci", 0.200)
-cci_val      = gf("cci", 0.6885)
-alpha_val    = gf("cronbach_alpha", 0.740)
-phase_num    = str(g("phase_number", "3"))
-phase_name   = g("phase_name", "Volatility Expansion")
-gcpi_zone    = g("gcpi_zone", "ORANGE")
-grci_status  = g("grci_status", "STABLE")
-cci_status   = g("cci_status", "STAGFLATIONARY")
-alpha_status = g("alpha_status", "Converging")
-as_of_date   = g("as_of_date", datetime.now().strftime("%d %b %Y"))
-issue_num    = g("issue_number", "—")
-run_label    = g("run_label", "—")
+# ── EXTRACT KEY VALUES FROM NESTED JSON ───────────────────────────────────────
+gcpi_val     = gf("gcpi_score",      54.22)
+eff_gcpi     = gf("effective_gcpi",  63.33)
+grci_val     = gf("grci_score",      0.200)
+cci_val      = gf("cci_score",       0.6885)
+alpha_val    = gf("alpha_gcpi",      0.740)
+phase_num    = str(int(gf("phase",   3)))
+rbi_room     = gf("rbi_room",        0.5)
+rbi_const    = g("rbi_constraint",   "Constrained")
+nifty_close  = gf("nifty",           0.0)
+sp500_close  = gf("sp500",           0.0)
+dxy_close    = gf("dxy",             0.0)
+brent_close  = gf("brent",           0.0)
+vix_close    = gf("vix",             0.0)
+india_vix    = gf("india_vix",       0.0)
+usdinr_close = gf("usdinr",          0.0)
+active_rule  = g("active_rule",      "PRE-ALERT MONITORING")
+cci_dir      = g("cci_direction",    "STAGFLATIONARY")
 
-nifty_z20  = gf("nifty_z20",  0.0)
-sp500_z20  = gf("sp500_z20",  0.0)
-dxy_z20    = gf("dxy_z20",    0.0)
-usdinr_z20 = gf("usdinr_z20", 0.0)
+# Derived labels
+def gcpi_zone_label(v):
+    if v >= 70: return "RED"
+    if v >= 50: return "ORANGE"
+    if v >= 30: return "YELLOW"
+    return "GREEN"
 
-gcpi_c = gcpi_color(gcpi_val)
-ph_c   = phase_color(phase_num)
+def grci_status_label(v):
+    if v >= 0.80: return "CONFIRMED"
+    if v >= 0.60: return "BUILDING"
+    if v >= 0.40: return "WATCH"
+    return "STABLE"
 
-# Detect run context from IST time (fallback if not in JSON)
+def alpha_status_label(v):
+    if v >= 0.80: return "Coherent"
+    if v >= 0.70: return "Converging"
+    return "Diverging"
+
+def cci_status_label(d):
+    d = str(d).upper()
+    if "STAG" in d: return "STAGFLATIONARY"
+    if "UP"   in d: return "UPSIDE PRESSURE"
+    if "DOWN" in d: return "DOWNSIDE DRAG"
+    return d if d else "NEUTRAL"
+
+gcpi_zone    = gcpi_zone_label(gcpi_val)
+grci_status  = grci_status_label(grci_val)
+alpha_status = alpha_status_label(alpha_val)
+cci_status   = cci_status_label(cci_dir)
+
+phase_name_map = {
+    "1":"Stable Equilibrium","2":"Compression Building",
+    "3":"Volatility Expansion","4":"Active Fragility",
+    "5":"Active Recovery","6":"Conflicted Regime"
+}
+phase_name = phase_name_map.get(phase_num, "Volatility Expansion")
+
+# Date + issue
+as_of_date = data.get("generated", datetime.now().strftime("%Y-%m-%d"))[:10]
+try:
+    as_of_date = datetime.strptime(as_of_date, "%Y-%m-%d").strftime("%d %b %Y")
+except:
+    pass
+issue_num  = data.get("issue_number", "—")
+run_label  = data.get("run_label", "—")
+
+# Z-scores from chart4 heatmap
+nifty_z20   = gz("NIFTY50")
+sp500_z20   = gz("SP500")
+dxy_z20     = gz("DXY") if "DXY" in c4.get("tickers",[]) else 0.0
+usdinr_z20  = gz("USDINR") if "USDINR" in c4.get("tickers",[]) else 0.0
+nasdaq_z20  = gz("NASDAQ100")
+bnk_z20     = gz("BANKNIFTY")
+hsi_z20     = gz("HANGSENG")
+brent_z20   = gz("BRENT")
+gold_z20    = gz("GOLD")
+
+# GCPI 6 dimensions from chart3 radar
+radar_scores = c3.get("scores", [0.55, 0.58, 0.60, 0.52, 0.65, 0.70])
+gcpi_d1 = float(radar_scores[0]) if len(radar_scores) > 0 else 0.55
+gcpi_d2 = float(radar_scores[1]) if len(radar_scores) > 1 else 0.58
+gcpi_d3 = float(radar_scores[2]) if len(radar_scores) > 2 else 0.60
+gcpi_d4 = float(radar_scores[3]) if len(radar_scores) > 3 else 0.52
+gcpi_d5 = float(radar_scores[4]) if len(radar_scores) > 4 else 0.65
+gcpi_d6 = float(radar_scores[5]) if len(radar_scores) > 5 else 0.70
+
+# CCI segments from chart6
+cci_segs_raw = c6.get("segments", {})
+def cci_seg(ticker, default=0.55):
+    seg = cci_segs_raw.get(ticker, {})
+    z = seg.get("z20", default)
+    return float(z) if z is not None else default
+
+cci_energy   = cci_seg("BRENT",   0.72)
+cci_metals   = cci_seg("COPPER",  0.58)
+cci_agri     = cci_seg("WHEAT",   0.61)
+cci_precious = cci_seg("GOLD",    0.55)
+
+# History for signal log — from chart1
+hist_dates  = hist.get("dates",   [])
+hist_gcpi   = hist.get("gcpi",    [])
+hist_phases = hist.get("phases" if "phases" in hist else "current", [])
+history_rows = []
+if hist_dates and hist_gcpi:
+    for i in range(max(0, len(hist_dates)-6), len(hist_dates)):
+        try:
+            history_rows.append({
+                "date":         hist_dates[i],
+                "gcpi":         hist_gcpi[i],
+                "grci":         hist.get("grci", [grci_val]*len(hist_dates))[i] if i < len(hist.get("grci",[])) else grci_val,
+                "cronbach_alpha": alpha_val,
+                "phase_number": hist_phases[i] if hist_phases and i < len(hist_phases) else phase_num,
+                "phase_name":   phase_name_map.get(str(int(hist_phases[i])) if hist_phases and i < len(hist_phases) else phase_num, phase_name),
+                "regime_signal": active_rule,
+            })
+        except:
+            pass
+
+# Detect run context
 hour_ist = (datetime.utcnow().hour + 5) % 24 + (1 if datetime.utcnow().minute >= 30 else 0)
-run_context = g("run_context",
+run_context = data.get("run_context",
     "India market close (5:00 PM IST)" if 16 <= hour_ist <= 18 else
     "global market open (8:30 AM IST)" if 7 <= hour_ist <= 10 else "scheduled")
 
@@ -435,14 +558,14 @@ st.markdown('<div class="rp-section"><span>02</span> Key Macro Readings — Indi
             unsafe_allow_html=True)
 
 macro_fields = [
-    ("DXY Index",       g("dxy"),              g("dxy_change","—"),       "Threshold: 99.6",  "#f87171"),
-    ("USD / INR",       g("usdinr"),            g("usdinr_chg","—"),       "RBI monitoring",   "#fbbf24"),
-    ("India-US Spread", g("spread_in_us","—"),  "bps",                     "Threshold: 250bps","#f87171"),
-    ("Brent Crude",     g("brent"),             g("brent_chg","—"),        "Severe: $105",     "#fbbf24"),
-    ("India VIX",       g("india_vix"),         g("india_vix_chg","—"),    "Recovery: <14",    "#f87171"),
-    ("CBOE VIX",        g("vix"),               g("vix_chg","—"),          "Recovery: <16",    "#f87171"),
-    ("FII Flow MTD",    g("fii_mtd","—"),       "Net flow",                "Cr. — MTD",        "#f87171"),
-    ("US HY Spread",    g("us_hy_spread","—"),  "bps",                     "Watch >550",       "#fbbf24"),
+    ("DXY Index",       f"{dxy_close:.2f}"   if dxy_close   else "—", "▲ Watch Level",      "Threshold: 99.6",  "#f87171"),
+    ("USD / INR",       f"{usdinr_close:.2f}" if usdinr_close else "—","▲ Rupee Pressure",   "RBI monitoring",   "#fbbf24"),
+    ("India-US Spread", g("spread_in_us","—"), "bps",                   "Threshold: 250bps",  "#f87171"),
+    ("Brent Crude",     f"${brent_close:.1f}" if brent_close else "—", "Moderate pressure",  "Severe: $105",     "#fbbf24"),
+    ("India VIX",       f"{india_vix:.2f}"   if india_vix   else "—", "▲ Elevated",          "Recovery: <14",    "#f87171"),
+    ("CBOE VIX",        f"{vix_close:.2f}"   if vix_close   else "—", "▲ Risk-off",          "Recovery: <16",    "#f87171"),
+    ("FII Flow MTD",    g("fii_mtd","—"),      "Net flow",              "Cr. — MTD",           "#f87171"),
+    ("US HY Spread",    g("us_hy_spread","—"), "bps",                   "Watch >550",          "#fbbf24"),
 ]
 
 mc_html = '<div class="mc-grid">'
@@ -462,12 +585,12 @@ col_left, col_right = st.columns(2, gap="medium")
 
 with col_left:
     gcpi_dims = [
-        ("D1 Valuation",  gf("gcpi_d1", 0.55), "ELEVATED"),
-        ("D2 Liquidity",  gf("gcpi_d2", 0.58), "ELEVATED"),
-        ("D3 Credit",     gf("gcpi_d3", 0.60), "ELEVATED"),
-        ("D4 FX/Capital", gf("gcpi_d4", 0.52), "MODERATE"),
-        ("D5 Vol Regime", gf("gcpi_d5", 0.65), "ELEVATED"),
-        ("D6 Contagion",  gf("gcpi_d6", 0.70), "CRITICAL"),
+        ("D1 Valuation",  gcpi_d1, "ELEVATED"),
+        ("D2 Liquidity",  gcpi_d2, "ELEVATED"),
+        ("D3 Credit",     gcpi_d3, "ELEVATED"),
+        ("D4 FX/Capital", gcpi_d4, "MODERATE"),
+        ("D5 Vol Regime", gcpi_d5, "ELEVATED"),
+        ("D6 Contagion",  gcpi_d6, "CRITICAL"),
     ]
     def dim_color(v):
         if v >= 0.70: return "#f87171", "#ef4444"
@@ -505,16 +628,16 @@ with col_left:
 
 with col_right:
     stretch_assets = [
-        ("NIFTY 50",    nifty_z20,              g("nifty_z20_zone","—")),
-        ("BANKNIFTY",   gf("banknifty_z20",0.0),g("banknifty_z20_zone","—")),
-        ("S&P 500",     sp500_z20,              g("sp500_z20_zone","—")),
-        ("NASDAQ 100",  gf("nasdaq_z20",0.0),   g("nasdaq_z20_zone","—")),
-        ("HANG SENG",   gf("hsi_z20",0.0),      g("hsi_z20_zone","—")),
-        ("DXY",         dxy_z20,                g("dxy_z20_zone","—")),
-        ("USD/INR",     usdinr_z20,             g("usdinr_z20_zone","—")),
-        ("BRENT",       gf("brent_z20",0.0),    g("brent_z20_zone","—")),
-        ("GOLD",        gf("gold_z20",0.0),     g("gold_z20_zone","—")),
-        ("US 10Y YIELD",gf("us10y_z20",0.0),    g("us10y_z20_zone","—")),
+        ("NIFTY 50",    nifty_z20,  gz_zone(nifty_z20)),
+        ("BANKNIFTY",   bnk_z20,    gz_zone(bnk_z20)),
+        ("S&P 500",     sp500_z20,  gz_zone(sp500_z20)),
+        ("NASDAQ 100",  nasdaq_z20, gz_zone(nasdaq_z20)),
+        ("HANG SENG",   hsi_z20,    gz_zone(hsi_z20)),
+        ("DXY",         dxy_z20,    gz_zone(dxy_z20)),
+        ("USD/INR",     usdinr_z20, gz_zone(usdinr_z20)),
+        ("BRENT",       brent_z20,  gz_zone(brent_z20)),
+        ("GOLD",        gold_z20,   gz_zone(gold_z20)),
+        ("US 10Y YIELD",gz("US10Y"),gz_zone(gz("US10Y"))),
     ]
     def z_bar_html(z):
         pct = min(abs(z) / 3.0 * 50, 50)
@@ -592,11 +715,11 @@ with col_grci:
 
 with col_cci:
     cci_segs = [
-        ("Energy",     gf("cci_energy",  0.72), "#f87171", "UPSIDE PRESSURE"),
-        ("Metals",     gf("cci_metals",  0.58), "#fbbf24", "MODERATE"),
-        ("Agri",       gf("cci_agri",    0.61), "#fbbf24", "MODERATE"),
-        ("Precious",   gf("cci_precious",0.55), "#60a5fa", "NEUTRAL"),
-        ("USD Factor", gf("cci_usd",     0.68), "#f87171", "AMPLIFYING"),
+        ("Energy",     cci_energy,   "#f87171", "UPSIDE PRESSURE"),
+        ("Metals",     cci_metals,   "#fbbf24", "MODERATE"),
+        ("Agri",       cci_agri,     "#fbbf24", "MODERATE"),
+        ("Precious",   cci_precious, "#60a5fa", "NEUTRAL"),
+        ("USD Factor", gf("rbi_room", 0.5), "#f87171", "AMPLIFYING"),
     ]
     cci_html = '<div class="cci-grid">'
     for lbl, val, col, direction in cci_segs:
@@ -663,10 +786,10 @@ with col_sc:
     </div>""", unsafe_allow_html=True)
 
 with col_log:
-    history  = data.get("history", [])
+    history  = history_rows
     log_rows = ""
     if history:
-        for row in history[-6:][::-1]:
+        for row in history[::-1]:
             d      = row.get("date","—")[:8]
             gc     = int(float(row.get("gcpi", 0)))
             gr     = float(row.get("grci", 0))
