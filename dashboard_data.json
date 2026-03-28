@@ -1,26 +1,32 @@
 {
   "generated": "2026-03-28",
-  "generated_time": "2026-03-27 10:15:01",
+  "generated_time": "2026-03-28 14:55:25",
   "current": {
-    "gcpi": 33.81,
-    "effective_gcpi": 37.87,
-    "grci": 0.2,
-    "cci": 0.6493,
-    "cci_direction": "DOWNSIDE ALIGNED",
-    "alpha": 0.45962819356329354,
+    "gcpi_score": 33.51,
+    "effective_gcpi": 37.53,
+    "grci_score": 0.1813,
+    "cci_score": 0.6314,
+    "cci_direction": "MILD DOWNSIDE",
+    "alpha_gcpi": 0.40201905630694423,
     "phase": 2,
     "active_rule": "STANDARD MONITORING",
-    "rbi_room": 3.518533333333334,
+    "rbi_room": 5.0466,
     "rbi_constraint": 1,
-    "nifty": 23306.44921875,
-    "sp500": 6477.16015625,
-    "dxy": 99.9000015258789,
-    "brent": 108.01000213623047,
-    "vix": 27.440000534057617,
-    "india_vix": 24.639999389648438,
-    "usdinr": 94.6937026977539,
+    "nifty_close": 22819.599609375,
+    "sp500_close": 6368.85009765625,
+    "dxy_close": 100.1500015258789,
+    "brent_close": 112.56999969482422,
+    "vix_close": 31.049999237060547,
+    "india_vix_close": 26.799999237060547,
+    "usdinr_close": 94.30950164794922,
     "oversold_count": 2,
-    "spring_count": 1
+    "spring_count": 1,
+    "nifty_z20": -1.77,
+    "sp500_z20": -2.51,
+    "dxy_z20": 1.5,
+    "usdinr_z20": 2.18,
+    "brent_z20": 1.86,
+    "gold_z20": -2.16
   },
   "chart1_gcpi_trend": {
     "title": "GCPI Trend \u2014 Daily History",
@@ -167,7 +173,8 @@
       "2026-03-20",
       "2026-03-22",
       "2026-03-23",
-      "2026-03-27"
+      "2026-03-27",
+      "2026-03-28"
     ],
     "gcpi": [
       15.64,
@@ -312,7 +319,8 @@
       54.01,
       54.22,
       33.91,
-      33.81
+      33.81,
+      33.51
     ],
     "eff_gcpi": [
       16.42,
@@ -457,7 +465,8 @@
       63.09,
       63.33,
       37.98,
-      37.87
+      37.87,
+      37.53
     ],
     "zones": {
       "green": [
@@ -478,9 +487,9 @@
       ]
     },
     "current": {
-      "gcpi": 33.81,
-      "eff_gcpi": 37.87,
-      "date": "2026-03-27",
+      "gcpi": 33.51,
+      "eff_gcpi": 37.53,
+      "date": "2026-03-28",
       "phase": 2
     }
   },
@@ -629,7 +638,8 @@
       "2026-03-20",
       "2026-03-22",
       "2026-03-23",
-      "2026-03-27"
+      "2026-03-27",
+      "2026-03-28"
     ],
     "grci": [
       0.4,
@@ -774,7 +784,8 @@
       0.2,
       0.2,
       0.2,
-      0.2
+      0.2,
+      0.1813
     ],
     "zones": {
       "stable": [
@@ -795,8 +806,8 @@
       ]
     },
     "current": {
-      "grci": 0.2,
-      "date": "2026-03-27"
+      "grci": 0.1813,
+      "date": "2026-03-28"
     }
   },
   "chart3_radar": {
@@ -811,14 +822,14 @@
     ],
     "scores": [
       0.38,
-      0.3276,
-      0.0108,
-      0.6452,
-      0.4081,
-      0.258
+      0.2882,
+      0.0111,
+      0.7121,
+      0.3708,
+      0.234
     ],
-    "date": "2026-03-27",
-    "alpha": 0.4596
+    "date": "2026-03-28",
+    "alpha": 0.402
   },
   "chart4_heatmap": {
     "title": "Global Stretch Heatmap \u2014 Z-Scores (20D)",
@@ -837,32 +848,43 @@
       "MSCI_EM",
       "SHANGHAI",
       "ASX200",
-      "BOVESPA"
+      "BOVESPA",
+      "DXY",
+      "USDINR",
+      "BRENT",
+      "GOLD"
     ],
     "z_scores": [
-      -1.5,
-      -1.64,
-      -2.44,
-      -2.87,
-      -1.29,
-      -1.74,
-      -1.88,
-      -1.55,
-      -1.19,
+      -1.77,
       -1.83,
-      -0.74,
-      -1.63,
-      -3.18,
+      -2.51,
+      -2.82,
+      -1.64,
+      -1.8,
+      -1.65,
+      -1.61,
+      -1.19,
+      -1.48,
+      -0.79,
       -1.53,
-      -0.45
+      -2.26,
+      -1.39,
+      -0.64,
+      1.5,
+      2.18,
+      1.86,
+      -2.16
     ],
     "oversold": [
       "SP500",
       "NASDAQ100",
-      "SHANGHAI"
+      "SHANGHAI",
+      "GOLD"
     ],
-    "overbought": [],
-    "date": "2026-03-27"
+    "overbought": [
+      "USDINR"
+    ],
+    "date": "2026-03-28"
   },
   "chart5_rsdm": {
     "title": "RSDM Key Pairs \u2014 Relative Strength",
@@ -1491,36 +1513,36 @@
         "cluster": "EM vs DM"
       }
     },
-    "date": "2026-03-27"
+    "date": "2026-03-28"
   },
   "chart6_cci": {
     "title": "CCI Commodity Snapshot",
     "segments": {
       "BRENT": {
-        "price": 108.01000213623047,
-        "z20": 1.82
+        "price": 112.56999969482422,
+        "z20": 1.86
       },
       "GOLD": {
-        "price": 4375.5,
-        "z20": -3.14
+        "price": 4492.0,
+        "z20": -2.16
       },
       "COPPER": {
-        "price": 5.446499824523926,
-        "z20": -2.27
+        "price": 5.4670000076293945,
+        "z20": -1.84
       },
       "WHEAT": {
         "price": 605.0,
-        "z20": 1.32
+        "z20": 1.25
       },
       "SOYBEAN": {
-        "price": 1173.75,
-        "z20": 0.35
+        "price": 1159.25,
+        "z20": -0.25
       }
     },
-    "cci_score": 0.6493,
-    "cci_direction": "DOWNSIDE ALIGNED",
-    "rbi_room": 3.5,
-    "date": "2026-03-27"
+    "cci_score": 0.6314,
+    "cci_direction": "MILD DOWNSIDE",
+    "rbi_room": 5.0,
+    "date": "2026-03-28"
   },
   "chart7_phase": {
     "title": "Phase History Timeline",
@@ -1667,7 +1689,8 @@
       "2026-03-20",
       "2026-03-22",
       "2026-03-23",
-      "2026-03-27"
+      "2026-03-27",
+      "2026-03-28"
     ],
     "phases": [
       1,
@@ -1811,6 +1834,7 @@
       2,
       3,
       3,
+      2,
       2,
       2
     ],
@@ -1957,6 +1981,7 @@
       "PRE-ALERT MONITORING",
       "PRE-ALERT MONITORING",
       "STANDARD MONITORING",
+      "STANDARD MONITORING",
       "STANDARD MONITORING"
     ],
     "phase_names": {
@@ -1976,22 +2001,6 @@
       "6": "#8b5cf6"
     },
     "current_phase": 2,
-    "date": "2026-03-27"
-  },
-  "run_context": "scheduled_run",
-  "run_label": "Scheduled \u2014 28 Mar 2026 19:39 IST",
-  "ai_context": "scheduled update context.",
-  "last_updated": "2026-03-28 19:39 IST",
-  "price_log": [
-    {
-      "date": "2026-03-28",
-      "time": "19:39 IST",
-      "context": "scheduled_run",
-      "nifty": null,
-      "sp500": null,
-      "dxy": null,
-      "brent": null,
-      "vix": null
-    }
-  ]
+    "date": "2026-03-28"
+  }
 }
