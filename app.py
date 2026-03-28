@@ -610,21 +610,21 @@ with col_left:
         </div>"""
 
     alpha_badge_cls = "alpha-badge" if alpha_val >= 0.70 else ""
-    st.markdown(f"""
-    <div class="rp-panel">
-      <div class="rp-panel-hdr">
-        <div class="rp-panel-title">GCPI — Fragility Engine</div>
-        <span class="fc {flag_class}">{gcpi_int} · {gcpi_zone}</span>
-      </div>
-      <div class="rp-panel-body">
-        {rows_html}
-        <div class="alpha-row">
-          <div class="alpha-lbl">Cronbach's α</div>
-          <div class="alpha-val">{alpha_val:.3f}</div>
-          <div class="{alpha_badge_cls}">{alpha_status.upper()}</div>
-        </div>
-      </div>
-    </div>""", unsafe_allow_html=True)
+    _ab = alpha_badge_cls
+    _gcpi_html = (
+        '<div class="rp-panel">'
+        + '<div class="rp-panel-hdr">'
+        + '<div class="rp-panel-title">GCPI — Fragility Engine</div>'
+        + f'<span class="fc {flag_class}">{gcpi_int} · {gcpi_zone}</span>'
+        + '</div>'
+        + f'<div class="rp-panel-body">{rows_html}'
+        + '<div class="alpha-row">'
+        + '<div class="alpha-lbl">Cronbach\'s α</div>'
+        + f'<div class="alpha-val">{alpha_val:.3f}</div>'
+        + f'<div class="{_ab}">{alpha_status.upper()}</div>'
+        + '</div></div></div>'
+    )
+    st.markdown(_gcpi_html, unsafe_allow_html=True)
 
 with col_right:
     stretch_assets = [
@@ -704,14 +704,16 @@ with col_grci:
       <span class="fc fc-grey" style="font-size:8px;">Requires GRCI &gt; 0.80 + α &gt; 0.80</span>
     </div>"""
 
-    st.markdown(f"""
-    <div class="rp-panel">
-      <div class="rp-panel-hdr">
-        <div class="rp-panel-title">GRCI — Recovery Sensor</div>
-        <span class="fc fc-grey">{grci_val:.3f} · {grci_status.upper()}</span>
-      </div>
-      <div class="rp-panel-body">{grci_rows}{confirm_html}</div>
-    </div>""", unsafe_allow_html=True)
+    _grci_html = (
+        '<div class="rp-panel">'
+        + '<div class="rp-panel-hdr">'
+        + '<div class="rp-panel-title">GRCI — Recovery Sensor</div>'
+        + f'<span class="fc fc-grey">{grci_val:.3f} · {grci_status.upper()}</span>'
+        + '</div>'
+        + f'<div class="rp-panel-body">{grci_rows}{confirm_html}</div>'
+        + '</div>'
+    )
+    st.markdown(_grci_html, unsafe_allow_html=True)
 
 with col_cci:
     cci_segs = [
@@ -814,20 +816,20 @@ with col_log:
     else:
         log_rows = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:var(--txt3);padding:10px 0;">No history data available.</div>'
 
-    st.markdown(f"""
-    <div class="rp-panel">
-      <div class="rp-panel-hdr">
-        <div class="rp-panel-title">Signal Log — Live Record</div>
-        <span class="fc fc-grey">Issue #{issue_num}</span>
-      </div>
-      <div class="rp-panel-body">
-        <div class="sig-log-row sig-log-hdr">
-          <div>Date</div><div>GCPI</div><div>GRCI</div>
-          <div>α</div><div>Phase</div><div>Rule</div><div>Regime</div>
-        </div>
-        {log_rows}
-      </div>
-    </div>""", unsafe_allow_html=True)
+    _hdr = ('<div class="sig-log-row sig-log-hdr">'
+             '<div>Date</div><div>GCPI</div><div>GRCI</div>'
+             '<div>α</div><div>Phase</div><div>Rule</div><div>Regime</div>'
+             '</div>')
+    _log_html = (
+        '<div class="rp-panel">'
+        + '<div class="rp-panel-hdr">'
+        + '<div class="rp-panel-title">Signal Log — Live Record</div>'
+        + f'<span class="fc fc-grey">Issue #{issue_num}</span>'
+        + '</div>'
+        + f'<div class="rp-panel-body">{_hdr}{log_rows}</div>'
+        + '</div>'
+    )
+    st.markdown(_log_html, unsafe_allow_html=True)
 
 # ── SECTION 04 — OUTPUT CONTRACT ─────────────────────────────────────────────
 st.markdown('<div class="rp-section"><span>04</span> Output Contract — Surveillance Triggers</div>',
