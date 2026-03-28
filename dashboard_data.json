@@ -1,5 +1,5 @@
 {
-  "generated": "2026-03-27",
+  "generated": "2026-03-28",
   "generated_time": "2026-03-27 10:15:01",
   "current": {
     "gcpi": 33.81,
@@ -1977,5 +1977,21 @@
     },
     "current_phase": 2,
     "date": "2026-03-27"
-  }
+  },
+  "run_context": "scheduled_run",
+  "run_label": "Scheduled \u2014 28 Mar 2026 19:39 IST",
+  "ai_context": "scheduled update context.",
+  "last_updated": "2026-03-28 19:39 IST",
+  "price_log": [
+    {
+      "date": "2026-03-28",
+      "time": "19:39 IST",
+      "context": "scheduled_run",
+      "nifty": null,
+      "sp500": null,
+      "dxy": null,
+      "brent": null,
+      "vix": null
+    }
+  ]
 }
