@@ -435,6 +435,32 @@ div[data-testid="stButton"] > button[kind="secondary"] {
  """
 st.markdown(f"<style>{_CSS}</style>", unsafe_allow_html=True)
 
+# ── SIDEBAR FORCE OPEN — JavaScript ──────────────────────────────────────────
+st.markdown("""
+<script>
+(function(){
+    function fix(){
+        var sels=[
+            '[data-testid="collapsedControl"]',
+            '[data-testid="stSidebarCollapseButton"]',
+            'button[aria-label="Close sidebar"]',
+            'button[aria-label="Open sidebar"]'
+        ];
+        sels.forEach(function(s){
+            document.querySelectorAll(s).forEach(function(el){
+                el.style.cssText='display:none!important;visibility:hidden!important;width:0!important;height:0!important;';
+            });
+        });
+        var sb=document.querySelector('[data-testid="stSidebar"]');
+        if(sb){sb.style.display='block';sb.style.visibility='visible';}
+    }
+    fix();
+    new MutationObserver(fix).observe(document.body,{childList:true,subtree:true});
+    setInterval(fix,500);
+})();
+</script>
+""", unsafe_allow_html=True)
+
 
 # ═══════════════════════════════════════════════════════════
 # SIDEBAR
