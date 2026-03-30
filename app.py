@@ -272,7 +272,7 @@ run_context = data.get("run_context",
     "global market open (8:30 AM IST)" if 7 <= hour_ist <= 10 else "scheduled")
 
 # ── MASTER CSS ────────────────────────────────────────────────────────────────
-st.markdown("""
+st.markdown(r"""
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
 :root {
