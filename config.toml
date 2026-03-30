@@ -5,6 +5,10 @@ enableXsrfProtection = false
 
 [theme]
 base = "dark"
+backgroundColor = "#080c14"
+secondaryBackgroundColor = "#0d1420"
+textColor = "#e2e8f0"
+font = "monospace"
 
 [ui]
 hideSidebarNav = false
