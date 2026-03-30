@@ -119,3 +119,35 @@ div[data-testid="stButton"] > button[kind="secondary"] {
   font-size:10px !important; letter-spacing:0.06em !important;
   padding:4px 12px !important; border-radius:4px !important; width:100% !important;
 }
+
+/* ── TOOLTIPS ── */
+.tooltip {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dashed #334155;
+}
+.tooltip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0d1420;
+  border: 1px solid #243450;
+  color: #94a3b8;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  line-height: 1.6;
+  padding: 8px 12px;
+  border-radius: 6px;
+  white-space: pre-line;
+  width: 220px;
+  text-align: left;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 9999;
+}
+.tooltip:hover::after {
+  opacity: 1;
+}
