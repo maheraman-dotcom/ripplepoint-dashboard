@@ -544,7 +544,23 @@ st.markdown("""
 st.markdown('<div class="rp-section"><span>01</span> Net Regime Signal</div>',
             unsafe_allow_html=True)
 
-narrative = get_ai_narrative(gcpi_val, phase_num, grci_val, cci_val, alpha_val, run_context)
+# F13: Silent narrative loading — no spinner text shown to user
+try:
+    narrative = get_ai_narrative(gcpi_val, phase_num, grci_val, cci_val, alpha_val, run_context)
+    if not narrative or "error" in narrative.lower()[:20]:
+        narrative = (
+            f"RIPPLEPOINT is monitoring Phase {phase_num} — {phase_name} conditions. "
+            f"GCPI at {gcpi_val:.1f} with CCI at {cci_val:.4f} indicating {cci_status.lower()} "
+            f"dynamics. Alpha coherence at {alpha_val:.3f} — {alpha_status.lower()} signal integrity. "
+            f"Surveillance active under {active_rule}."
+        )
+except Exception:
+    narrative = (
+        f"RIPPLEPOINT is monitoring Phase {phase_num} — {phase_name} conditions. "
+        f"GCPI at {gcpi_val:.1f} with CCI at {cci_val:.4f} indicating {cci_status.lower()} "
+        f"dynamics. Alpha coherence at {alpha_val:.3f} — {alpha_status.lower()} signal integrity. "
+        f"Surveillance active under {active_rule}."
+    )
 
 gcpi_int   = int(gcpi_val)
 eff_int    = int(eff_gcpi)
