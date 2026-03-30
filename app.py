@@ -580,7 +580,7 @@ st.markdown(f"""
       <div class="rp-chip-sub">{cci_status[:10]}</div>
     </div>
     <div class="rp-chip">
-      <div class="rp-chip-lbl">α</div>
+      <div class="rp-chip-lbl">ALPHA</div>
       <div class="rp-chip-val" style="color:#34d399;">{alpha_val:.3f}</div>
       <div class="rp-chip-sub">{alpha_status}</div>
     </div>
@@ -610,8 +610,6 @@ macro_fields = [
     ("Brent Crude",     f"${brent_close:.1f}" if brent_close  else "—", "Moderate pressure", "Severe: $105",     "#fbbf24"),
     ("India VIX",       f"{india_vix:.2f}"    if india_vix    else "—", "▲ Elevated",        "Recovery: <14",    "#f87171"),
     ("CBOE VIX",        f"{vix_close:.2f}"    if vix_close    else "—", "▲ Risk-off",        "Recovery: <16",    "#f87171"),
-    ("FII Flow MTD",    g("fii_mtd","—"),      "Net flow",               "Cr. — MTD",         "#f87171"),
-    ("US HY Spread",    g("us_hy_spread","—"), "bps",                    "Watch >550",        "#fbbf24"),
 ]
 
 mc_html = '<div class="mc-grid">'
@@ -654,9 +652,10 @@ with col_left:
     for lbl, val, zone, tip in gcpi_dims:
         tc, bc = dim_color(val)
         pct = int(val * 100)
+        short_tip = tip.split("\n")[0]
         rows_html += (
             '<div class="gauge-row">'
-            f'<div class="gauge-lbl tooltip" data-tip="{tip}">{lbl}</div>'
+            f'<div class="gauge-lbl" title="{tip}">{lbl}</div>'
             f'<div class="gauge-track"><div class="gauge-fill" style="width:{pct}%;background:{bc};"></div></div>'
             f'<div class="gauge-num" style="color:{tc};">{val:.2f}</div>'
             f'<div class="gauge-zone" style="color:{tc};">{zone}</div>'
@@ -754,7 +753,7 @@ with col_grci:
         bc  = "#10b981" if val >= 0.60 else "#334155"
         grci_rows += (
             '<div class="gauge-row">'
-            f'<div class="gauge-lbl tooltip" data-tip="{tip}">{lbl}</div>'
+            f'<div class="gauge-lbl" title="{tip}">{lbl}</div>'
             f'<div class="gauge-track"><div class="gauge-fill" style="width:{pct}%;background:{bc};"></div></div>'
             f'<div class="gauge-num" style="color:{gc};">{val:.2f}</div>'
             f'<div class="gauge-zone" style="color:{gc};">{zone}</div>'
