@@ -11,6 +11,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+st._config.set_option("client.showSidebarNavigation", False)
 
 # ── AUTH IMPORTS + GATE ───────────────────────────────────────────────────────
 from auth import is_logged_in, current_user, is_approved, supabase_sign_out
