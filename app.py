@@ -463,10 +463,7 @@ macro_fields = [
     ("Brent Crude",     f"${brent_close:.1f}" if brent_close  else "—", "Moderate pressure", "Severe: $105",     "#fbbf24"),
     ("India VIX",       f"{india_vix:.2f}"    if india_vix    else "—", "▲ Elevated",        "Recovery: <14",    "#f87171"),
     ("CBOE VIX",        f"{vix_close:.2f}"    if vix_close    else "—", "▲ Risk-off",        "Recovery: <16",    "#f87171"),
-    ("FII Flow MTD",    g("fii_mtd","—"),      "Net flow",               "Cr. — MTD",         "#f87171"),
-    ("US HY Spread",    g("us_hy_spread","—"), "bps",                    "Watch >550",        "#fbbf24"),
-]
-
+   ]
 mc_html = '<div class="mc-grid">'
 for lbl, val, chg, status, col in macro_fields:
     mc_html += f"""
