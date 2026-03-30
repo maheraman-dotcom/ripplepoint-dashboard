@@ -1992,5 +1992,21 @@
     },
     "current_phase": 2,
     "date": "2026-03-30"
-  }
+  },
+  "run_context": "scheduled_run",
+  "run_label": "Scheduled \u2014 30 Mar 2026 21:24 IST",
+  "ai_context": "scheduled update context.",
+  "last_updated": "2026-03-30 21:24 IST",
+  "price_log": [
+    {
+      "date": "2026-03-30",
+      "time": "21:24 IST",
+      "context": "scheduled_run",
+      "nifty": null,
+      "sp500": null,
+      "dxy": null,
+      "brent": null,
+      "vix": null
+    }
+  ]
 }
