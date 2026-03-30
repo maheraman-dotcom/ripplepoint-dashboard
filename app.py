@@ -16,6 +16,31 @@ st.set_page_config(
 from auth import is_logged_in, current_user, is_approved, supabase_sign_out
 from login_page import render_login_page
 
+# ── F2: SESSION PERSISTENCE — restore session from query params or cookie ─────
+def restore_session():
+    """Try to restore session from stored token in session state."""
+    if st.session_state.get("rp_logged_in"):
+        return True
+    # Check if token was stored before rerun
+    token = st.session_state.get("_rp_token_persist")
+    user  = st.session_state.get("_rp_user_persist")
+    if token and user:
+        st.session_state.rp_logged_in = True
+        st.session_state.rp_token     = token
+        st.session_state.rp_user      = user
+        return True
+    return False
+
+def persist_session():
+    """Store session data for persistence across reruns."""
+    if st.session_state.get("rp_logged_in"):
+        st.session_state._rp_token_persist = st.session_state.get("rp_token")
+        st.session_state._rp_user_persist  = st.session_state.get("rp_user")
+
+# Attempt restore then check
+restore_session()
+persist_session()
+
 if not is_logged_in() or not is_approved():
     render_login_page()
     st.stop()
@@ -35,17 +60,13 @@ def load_data():
 data = load_data()
 
 # ── SAFE GETTERS ──────────────────────────────────────────────────────────────
-# Your JSON has a nested structure: data["current"]["gcpi"] etc.
-# These helpers read from the right place automatically.
-
-curr = data.get("current", {})          # main current readings
-c3   = data.get("chart3_radar", {})     # GCPI 6 dimensions
-c4   = data.get("chart4_heatmap", {})   # Z-scores heatmap
-c6   = data.get("chart6_cci",    {})    # CCI segments
-hist = data.get("chart1_gcpi_trend", {})# history for signal log
+curr = data.get("current", {})
+c3   = data.get("chart3_radar", {})
+c4   = data.get("chart4_heatmap", {})
+c6   = data.get("chart6_cci",    {})
+hist = data.get("chart1_gcpi_trend", {})
 
 def g(key, default="—"):
-    # Check current{} first, then top-level
     v = curr.get(key, data.get(key, default))
     return v if v is not None else default
 
@@ -57,7 +78,6 @@ def gf(key, default=0.0):
         return default
 
 def gz(ticker):
-    """Get Z-score for a ticker from chart4 heatmap data."""
     tickers = c4.get("tickers", [])
     zscores = c4.get("z_scores", [])
     try:
@@ -67,7 +87,6 @@ def gz(ticker):
         return 0.0
 
 def gz_zone(z):
-    """Convert z-score to zone label."""
     if z <= -2.0: return "Sig. Dev. Downside"
     if z <= -1.0: return "Mild Dev. Downside"
     if z >= 2.0:  return "Sig. Dev. Upside"
@@ -95,7 +114,7 @@ def get_ai_narrative(gcpi, phase, grci, cci, alpha, run_context):
                 "content": (
                     f"Current reading: GCPI {gcpi:.1f}, "
                     f"Phase {phase}, GRCI {grci:.3f}, "
-                    f"CCI {cci:.4f} ({cci_status}), Alpha {alpha:.3f}. "
+                    f"CCI {cci:.4f}, Alpha {alpha:.3f}. "
                     f"Generate the regime narrative."
                 )
             }]
@@ -129,7 +148,7 @@ def phase_color(p):
               "4":"#ef4444","5":"#8b5cf6","6":"#ec4899"}
     return colors.get(str(p), "#94a3b8")
 
-# ── EXTRACT KEY VALUES FROM NESTED JSON ───────────────────────────────────────
+# ── EXTRACT KEY VALUES ────────────────────────────────────────────────────────
 gcpi_val     = gf("gcpi_score",      54.22)
 eff_gcpi     = gf("effective_gcpi",  63.33)
 grci_val     = gf("grci_score",      0.200)
@@ -138,15 +157,17 @@ alpha_val    = gf("alpha_gcpi",      0.740)
 phase_num    = str(int(gf("phase",   3)))
 rbi_room     = gf("rbi_room",        0.5)
 rbi_const    = g("rbi_constraint",   "Constrained")
-nifty_close  = gf("nifty",           0.0)
-sp500_close  = gf("sp500",           0.0)
-dxy_close    = gf("dxy",             0.0)
-brent_close  = gf("brent",           0.0)
-vix_close    = gf("vix",             0.0)
-india_vix    = gf("india_vix",       0.0)
-usdinr_close = gf("usdinr",          0.0)
 active_rule  = g("active_rule",      "PRE-ALERT MONITORING")
 cci_dir      = g("cci_direction",    "STAGFLATIONARY")
+
+# F9: Fix macro cards — read correct key names from JSON
+nifty_close  = gf("nifty_close",    0.0)
+sp500_close  = gf("sp500_close",    0.0)
+dxy_close    = gf("dxy_close",      0.0)
+brent_close  = gf("brent_close",    0.0)
+vix_close    = gf("vix_close",      0.0)
+india_vix    = gf("india_vix_close",0.0)
+usdinr_close = gf("usdinr_close",   0.0)
 
 # Derived labels
 def gcpi_zone_label(v):
@@ -185,7 +206,6 @@ phase_name_map = {
 }
 phase_name = phase_name_map.get(phase_num, "Volatility Expansion")
 
-# Date + issue
 as_of_date = data.get("generated", datetime.now().strftime("%Y-%m-%d"))[:10]
 try:
     as_of_date = datetime.strptime(as_of_date, "%Y-%m-%d").strftime("%d %b %Y")
@@ -194,18 +214,18 @@ except:
 issue_num  = data.get("issue_number", "—")
 run_label  = data.get("run_label", "—")
 
-# Z-scores from chart4 heatmap
+# Z-scores
 nifty_z20   = gz("NIFTY50")
 sp500_z20   = gz("SP500")
-dxy_z20     = gz("DXY") if "DXY" in c4.get("tickers",[]) else 0.0
-usdinr_z20  = gz("USDINR") if "USDINR" in c4.get("tickers",[]) else 0.0
+dxy_z20     = gz("DXY")
+usdinr_z20  = gz("USDINR")
 nasdaq_z20  = gz("NASDAQ100")
 bnk_z20     = gz("BANKNIFTY")
 hsi_z20     = gz("HANGSENG")
 brent_z20   = gz("BRENT")
 gold_z20    = gz("GOLD")
 
-# GCPI 6 dimensions from chart3 radar
+# GCPI 6 dimensions
 radar_scores = c3.get("scores", [0.55, 0.58, 0.60, 0.52, 0.65, 0.70])
 gcpi_d1 = float(radar_scores[0]) if len(radar_scores) > 0 else 0.55
 gcpi_d2 = float(radar_scores[1]) if len(radar_scores) > 1 else 0.58
@@ -214,7 +234,7 @@ gcpi_d4 = float(radar_scores[3]) if len(radar_scores) > 3 else 0.52
 gcpi_d5 = float(radar_scores[4]) if len(radar_scores) > 4 else 0.65
 gcpi_d6 = float(radar_scores[5]) if len(radar_scores) > 5 else 0.70
 
-# CCI segments from chart6
+# CCI segments
 cci_segs_raw = c6.get("segments", {})
 def cci_seg(ticker, default=0.55):
     seg = cci_segs_raw.get(ticker, {})
@@ -226,27 +246,26 @@ cci_metals   = cci_seg("COPPER",  0.58)
 cci_agri     = cci_seg("WHEAT",   0.61)
 cci_precious = cci_seg("GOLD",    0.55)
 
-# History for signal log — from chart1
-hist_dates  = hist.get("dates",   [])
-hist_gcpi   = hist.get("gcpi",    [])
-hist_phases = hist.get("phases" if "phases" in hist else "current", [])
+# History for signal log
+hist_dates  = hist.get("dates",  [])
+hist_gcpi   = hist.get("gcpi",   [])
+hist_phases = hist.get("phases", [])
 history_rows = []
 if hist_dates and hist_gcpi:
     for i in range(max(0, len(hist_dates)-6), len(hist_dates)):
         try:
             history_rows.append({
-                "date":         hist_dates[i],
-                "gcpi":         hist_gcpi[i],
-                "grci":         hist.get("grci", [grci_val]*len(hist_dates))[i] if i < len(hist.get("grci",[])) else grci_val,
+                "date":           hist_dates[i],
+                "gcpi":           hist_gcpi[i],
+                "grci":           grci_val,
                 "cronbach_alpha": alpha_val,
-                "phase_number": hist_phases[i] if hist_phases and i < len(hist_phases) else phase_num,
-                "phase_name":   phase_name_map.get(str(int(hist_phases[i])) if hist_phases and i < len(hist_phases) else phase_num, phase_name),
-                "regime_signal": active_rule,
+                "phase_number":   hist_phases[i] if hist_phases and i < len(hist_phases) else phase_num,
+                "phase_name":     phase_name_map.get(str(int(hist_phases[i])) if hist_phases and i < len(hist_phases) else phase_num, phase_name),
+                "regime_signal":  active_rule,
             })
         except:
             pass
 
-# Detect run context
 hour_ist = (datetime.utcnow().hour + 5) % 24 + (1 if datetime.utcnow().minute >= 30 else 0)
 run_context = data.get("run_context",
     "India market close (5:00 PM IST)" if 16 <= hour_ist <= 18 else
@@ -283,6 +302,14 @@ html,body,[data-testid="stAppViewContainer"],
   border-right:1px solid var(--border) !important;
 }
 [data-testid="stSidebar"] > div { padding:0 !important; }
+
+/* F1: Hide sidebar collapse button completely */
+[data-testid="collapsedControl"] { display:none !important; }
+[data-testid="stSidebarCollapseButton"] { display:none !important; }
+button[aria-label="Close sidebar"] { display:none !important; }
+button[aria-label="Open sidebar"] { display:none !important; }
+section[data-testid="stSidebar"] > div:first-child > div:first-child > button { display:none !important; }
+
 #MainMenu,footer,header,
 [data-testid="stDecoration"],
 [data-testid="stToolbar"] { display:none !important; }
@@ -349,7 +376,7 @@ html,body,[data-testid="stAppViewContainer"],
 .cci-seg-lbl { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--txt3); margin-bottom:3px; }
 .cci-seg-val { font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; margin-bottom:2px; }
 .cci-seg-dir { font-family:'IBM Plex Mono',monospace; font-size:9px; }
-.sig-log-row { display:grid; grid-template-columns:90px 55px 55px 55px 70px 80px 1fr; gap:6px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-family:'IBM Plex Mono',monospace; font-size:10px; align-items:center; }
+.sig-log-row { display:grid; grid-template-columns:100px 55px 55px 55px 70px 80px 1fr; gap:6px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-family:'IBM Plex Mono',monospace; font-size:10px; align-items:center; }
 .sig-log-row:last-child { border-bottom:none; }
 .sig-log-hdr { color:var(--txt3); font-size:9px; letter-spacing:0.08em; text-transform:uppercase; padding-bottom:7px; border-bottom:1px solid var(--bord2) !important; }
 .sc-row { margin-bottom:11px; }
@@ -429,7 +456,6 @@ with st.sidebar:
                            color:{col};letter-spacing:0.03em;">{item}</span>
             </div>""", unsafe_allow_html=True)
 
-    # Admin link (only visible to admin)
     admin_emails = os.environ.get("ADMIN_EMAILS", "").split(",")
     if user.get("email","").strip() in [e.strip() for e in admin_emails]:
         st.markdown("""
@@ -478,7 +504,6 @@ st.markdown(f"""
 <div style="padding:20px 24px 0;">
 """, unsafe_allow_html=True)
 
-# ── DISCLAIMER ────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="disclaimer">
   <strong>Research Disclaimer:</strong> All outputs on this platform are statistical observations
@@ -489,21 +514,15 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ── SECTION 01 — NET REGIME SIGNAL ───────────────────────────────────────────
+# ── SECTION 01 ────────────────────────────────────────────────────────────────
 st.markdown('<div class="rp-section"><span>01</span> Net Regime Signal</div>',
             unsafe_allow_html=True)
 
 narrative = get_ai_narrative(gcpi_val, phase_num, grci_val, cci_val, alpha_val, run_context)
 
-gcpi_int = int(gcpi_val)
-eff_int  = int(eff_gcpi)
-
-phase_label_map = {
-    "1":"Stable Equilibrium","2":"Compression Building",
-    "3":"Volatility Expansion","4":"Active Fragility",
-    "5":"Systemic Stress","6":"Crisis Regime"
-}
-phase_full = phase_label_map.get(phase_num, phase_name)
+gcpi_int   = int(gcpi_val)
+eff_int    = int(eff_gcpi)
+phase_full = phase_name_map.get(phase_num, phase_name)
 flag_class = "fc-amber" if float(gcpi_val) < 70 else "fc-red"
 
 st.markdown(f"""
@@ -557,15 +576,16 @@ st.markdown(f"""
 st.markdown('<div class="rp-section"><span>02</span> Key Macro Readings — India Lens</div>',
             unsafe_allow_html=True)
 
+# F9: Use correct _close key names — now showing real values
 macro_fields = [
-    ("DXY Index",       f"{dxy_close:.2f}"   if dxy_close   else "—", "▲ Watch Level",      "Threshold: 99.6",  "#f87171"),
-    ("USD / INR",       f"{usdinr_close:.2f}" if usdinr_close else "—","▲ Rupee Pressure",   "RBI monitoring",   "#fbbf24"),
-    ("India-US Spread", g("spread_in_us","—"), "bps",                   "Threshold: 250bps",  "#f87171"),
-    ("Brent Crude",     f"${brent_close:.1f}" if brent_close else "—", "Moderate pressure",  "Severe: $105",     "#fbbf24"),
-    ("India VIX",       f"{india_vix:.2f}"   if india_vix   else "—", "▲ Elevated",          "Recovery: <14",    "#f87171"),
-    ("CBOE VIX",        f"{vix_close:.2f}"   if vix_close   else "—", "▲ Risk-off",          "Recovery: <16",    "#f87171"),
-    ("FII Flow MTD",    g("fii_mtd","—"),      "Net flow",              "Cr. — MTD",           "#f87171"),
-    ("US HY Spread",    g("us_hy_spread","—"), "bps",                   "Watch >550",          "#fbbf24"),
+    ("DXY Index",       f"{dxy_close:.2f}"    if dxy_close    else "—", "▲ Watch Level",     "Threshold: 99.6",  "#f87171"),
+    ("USD / INR",       f"{usdinr_close:.2f}" if usdinr_close else "—", "▲ Rupee Pressure",  "RBI monitoring",   "#fbbf24"),
+    ("India-US Spread", g("spread_in_us","—"), "bps",                    "Threshold: 250bps", "#f87171"),
+    ("Brent Crude",     f"${brent_close:.1f}" if brent_close  else "—", "Moderate pressure", "Severe: $105",     "#fbbf24"),
+    ("India VIX",       f"{india_vix:.2f}"    if india_vix    else "—", "▲ Elevated",        "Recovery: <14",    "#f87171"),
+    ("CBOE VIX",        f"{vix_close:.2f}"    if vix_close    else "—", "▲ Risk-off",        "Recovery: <16",    "#f87171"),
+    ("FII Flow MTD",    g("fii_mtd","—"),      "Net flow",               "Cr. — MTD",         "#f87171"),
+    ("US HY Spread",    g("us_hy_spread","—"), "bps",                    "Watch >550",        "#fbbf24"),
 ]
 
 mc_html = '<div class="mc-grid">'
@@ -601,43 +621,43 @@ with col_left:
     for lbl, val, zone in gcpi_dims:
         tc, bc = dim_color(val)
         pct = int(val * 100)
-        rows_html += f"""
-        <div class="gauge-row">
-          <div class="gauge-lbl">{lbl}</div>
-          <div class="gauge-track"><div class="gauge-fill" style="width:{pct}%;background:{bc};"></div></div>
-          <div class="gauge-num" style="color:{tc};">{val:.2f}</div>
-          <div class="gauge-zone" style="color:{tc};">{zone}</div>
-        </div>"""
+        rows_html += (
+            '<div class="gauge-row">'
+            f'<div class="gauge-lbl">{lbl}</div>'
+            f'<div class="gauge-track"><div class="gauge-fill" style="width:{pct}%;background:{bc};"></div></div>'
+            f'<div class="gauge-num" style="color:{tc};">{val:.2f}</div>'
+            f'<div class="gauge-zone" style="color:{tc};">{zone}</div>'
+            '</div>'
+        )
 
     alpha_badge_cls = "alpha-badge" if alpha_val >= 0.70 else ""
-    _ab = alpha_badge_cls
     _gcpi_html = (
         '<div class="rp-panel">'
         + '<div class="rp-panel-hdr">'
-        + '<div class="rp-panel-title">GCPI — Fragility Engine</div>'
-        + f'<span class="fc {flag_class}">{gcpi_int} · {gcpi_zone}</span>'
+        + '<div class="rp-panel-title">GCPI \u2014 Fragility Engine</div>'
+        + f'<span class="fc {flag_class}">{gcpi_int} \u00b7 {gcpi_zone}</span>'
         + '</div>'
         + f'<div class="rp-panel-body">{rows_html}'
         + '<div class="alpha-row">'
-        + '<div class="alpha-lbl">Cronbach\'s α</div>'
+        + '<div class="alpha-lbl">Cronbach\'s \u03b1</div>'
         + f'<div class="alpha-val">{alpha_val:.3f}</div>'
-        + f'<div class="{_ab}">{alpha_status.upper()}</div>'
+        + f'<div class="{alpha_badge_cls}">{alpha_status.upper()}</div>'
         + '</div></div></div>'
     )
     st.markdown(_gcpi_html, unsafe_allow_html=True)
 
 with col_right:
     stretch_assets = [
-        ("NIFTY 50",    nifty_z20,  gz_zone(nifty_z20)),
-        ("BANKNIFTY",   bnk_z20,    gz_zone(bnk_z20)),
-        ("S&P 500",     sp500_z20,  gz_zone(sp500_z20)),
-        ("NASDAQ 100",  nasdaq_z20, gz_zone(nasdaq_z20)),
-        ("HANG SENG",   hsi_z20,    gz_zone(hsi_z20)),
-        ("DXY",         dxy_z20,    gz_zone(dxy_z20)),
-        ("USD/INR",     usdinr_z20, gz_zone(usdinr_z20)),
-        ("BRENT",       brent_z20,  gz_zone(brent_z20)),
-        ("GOLD",        gold_z20,   gz_zone(gold_z20)),
-        ("US 10Y YIELD",gz("US10Y"),gz_zone(gz("US10Y"))),
+        ("NIFTY 50",     nifty_z20,  gz_zone(nifty_z20)),
+        ("BANKNIFTY",    bnk_z20,    gz_zone(bnk_z20)),
+        ("S&P 500",      sp500_z20,  gz_zone(sp500_z20)),
+        ("NASDAQ 100",   nasdaq_z20, gz_zone(nasdaq_z20)),
+        ("HANG SENG",    hsi_z20,    gz_zone(hsi_z20)),
+        ("DXY",          dxy_z20,    gz_zone(dxy_z20)),
+        ("USD/INR",      usdinr_z20, gz_zone(usdinr_z20)),
+        ("BRENT",        brent_z20,  gz_zone(brent_z20)),
+        ("GOLD",         gold_z20,   gz_zone(gold_z20)),
+        ("US 10Y YIELD", gz("US10Y"),gz_zone(gz("US10Y"))),
     ]
     def z_bar_html(z):
         pct = min(abs(z) / 3.0 * 50, 50)
@@ -650,24 +670,27 @@ with col_right:
     for name, z, zone in stretch_assets:
         zc   = z_color(z)
         sign = "+" if z >= 0 else ""
-        s_rows += f"""
-        <div class="stretch-row">
-          <div class="stretch-name">{name}</div>
-          <div style="flex:1;position:relative;">
-            <div class="stretch-track">{z_bar_html(z)}</div>
-          </div>
-          <div class="stretch-z" style="color:{zc};">{sign}{z:.2f}</div>
-          <div class="stretch-lbl" style="color:{zc};">{zone}</div>
-        </div>"""
+        s_rows += (
+            '<div class="stretch-row">'
+            f'<div class="stretch-name">{name}</div>'
+            '<div style="flex:1;position:relative;">'
+            f'<div class="stretch-track">{z_bar_html(z)}</div>'
+            '</div>'
+            f'<div class="stretch-z" style="color:{zc};">{sign}{z:.2f}</div>'
+            f'<div class="stretch-lbl" style="color:{zc};">{zone}</div>'
+            '</div>'
+        )
 
-    st.markdown(f"""
-    <div class="rp-panel">
-      <div class="rp-panel-hdr">
-        <div class="rp-panel-title">Global Stretch — Z-Score 20D</div>
-        <span class="fc fc-grey">INDIA + GLOBAL</span>
-      </div>
-      <div class="rp-panel-body">{s_rows}</div>
-    </div>""", unsafe_allow_html=True)
+    st.markdown(
+        '<div class="rp-panel">'
+        '<div class="rp-panel-hdr">'
+        '<div class="rp-panel-title">Global Stretch \u2014 Z-Score 20D</div>'
+        '<span class="fc fc-grey">INDIA + GLOBAL</span>'
+        '</div>'
+        f'<div class="rp-panel-body">{s_rows}</div>'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
 # ── GRCI + CCI ────────────────────────────────────────────────────────────────
 col_grci, col_cci = st.columns(2, gap="medium")
@@ -688,27 +711,31 @@ with col_grci:
         pct = int(val * 100)
         gc  = "#34d399" if val >= 0.60 else "#64748b"
         bc  = "#10b981" if val >= 0.60 else "#334155"
-        grci_rows += f"""
-        <div class="gauge-row">
-          <div class="gauge-lbl">{lbl}</div>
-          <div class="gauge-track"><div class="gauge-fill" style="width:{pct}%;background:{bc};"></div></div>
-          <div class="gauge-num" style="color:{gc};">{val:.2f}</div>
-          <div class="gauge-zone" style="color:{gc};">{zone}</div>
-        </div>"""
+        grci_rows += (
+            '<div class="gauge-row">'
+            f'<div class="gauge-lbl">{lbl}</div>'
+            f'<div class="gauge-track"><div class="gauge-fill" style="width:{pct}%;background:{bc};"></div></div>'
+            f'<div class="gauge-num" style="color:{gc};">{val:.2f}</div>'
+            f'<div class="gauge-zone" style="color:{gc};">{zone}</div>'
+            '</div>'
+        )
 
-    confirm_met = grci_val >= 0.80 and alpha_val >= 0.80
-    confirm_html = f"""
-    <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:0.1em;">Confirmation Rule</span>
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:{'#34d399' if confirm_met else '#64748b'};">{'ACTIVE' if confirm_met else 'NOT ACTIVE'}</span>
-      <span class="fc fc-grey" style="font-size:8px;">Requires GRCI &gt; 0.80 + α &gt; 0.80</span>
-    </div>"""
+    confirm_met  = grci_val >= 0.80 and alpha_val >= 0.80
+    confirm_col  = '#34d399' if confirm_met else '#64748b'
+    confirm_text = 'ACTIVE' if confirm_met else 'NOT ACTIVE'
+    confirm_html = (
+        '<div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">'
+        '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:0.1em;">Confirmation Rule</span>'
+        f'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:12px;font-weight:600;color:{confirm_col};">{confirm_text}</span>'
+        '<span class="fc fc-grey" style="font-size:8px;">Requires GRCI &gt; 0.80 + \u03b1 &gt; 0.80</span>'
+        '</div>'
+    )
 
     _grci_html = (
         '<div class="rp-panel">'
         + '<div class="rp-panel-hdr">'
-        + '<div class="rp-panel-title">GRCI — Recovery Sensor</div>'
-        + f'<span class="fc fc-grey">{grci_val:.3f} · {grci_status.upper()}</span>'
+        + '<div class="rp-panel-title">GRCI \u2014 Recovery Sensor</div>'
+        + f'<span class="fc fc-grey">{grci_val:.3f} \u00b7 {grci_status.upper()}</span>'
         + '</div>'
         + f'<div class="rp-panel-body">{grci_rows}{confirm_html}</div>'
         + '</div>'
@@ -721,16 +748,17 @@ with col_cci:
         ("Metals",     cci_metals,   "#fbbf24", "MODERATE"),
         ("Agri",       cci_agri,     "#fbbf24", "MODERATE"),
         ("Precious",   cci_precious, "#60a5fa", "NEUTRAL"),
-        ("USD Factor", gf("rbi_room", 0.5), "#f87171", "AMPLIFYING"),
+        ("USD Factor", rbi_room,     "#f87171", "AMPLIFYING"),
     ]
     cci_html = '<div class="cci-grid">'
     for lbl, val, col, direction in cci_segs:
-        cci_html += f"""
-        <div class="cci-seg">
-          <div class="cci-seg-lbl">{lbl}</div>
-          <div class="cci-seg-val" style="color:{col};">{val:.2f}</div>
-          <div class="cci-seg-dir" style="color:{col};">{direction}</div>
-        </div>"""
+        cci_html += (
+            '<div class="cci-seg">'
+            f'<div class="cci-seg-lbl">{lbl}</div>'
+            f'<div class="cci-seg-val" style="color:{col};">{val:.2f}</div>'
+            f'<div class="cci-seg-dir" style="color:{col};">{direction}</div>'
+            '</div>'
+        )
     cci_html += "</div>"
 
     cci_badge_class = "fc-amber" if "STAG" in cci_status.upper() else "fc-green"
@@ -749,7 +777,7 @@ with col_cci:
       </div>
     </div>""", unsafe_allow_html=True)
 
-# ── SECTION 03 — SCENARIO MATRIX + SIGNAL LOG ────────────────────────────────
+# ── SECTION 03 ────────────────────────────────────────────────────────────────
 st.markdown('<div class="rp-section"><span>03</span> Scenario Matrix — 1–3 Year Probability Distribution</div>',
             unsafe_allow_html=True)
 
@@ -767,32 +795,34 @@ with col_sc:
     sc_html = ""
     for name, prob, pct, col in scenarios:
         prob_col = "#f87171" if col == "#ef4444" else ("#fbbf24" if col == "#f59e0b" else "#34d399")
-        sc_html += f"""
-        <div class="sc-row">
-          <div class="sc-hdr">
-            <div class="sc-name">{name}</div>
-            <div class="sc-prob" style="color:{prob_col};">{prob}</div>
-          </div>
-          <div class="sc-track"><div class="sc-fill" style="width:{pct}%;background:{col};"></div></div>
-        </div>"""
-    sc_html += """<div style="margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--txt3);line-height:1.7;">
-      Probability distributions are scenario-based research assessments, not price forecasts.
-    </div>"""
-    st.markdown(f"""
-    <div class="rp-panel">
-      <div class="rp-panel-hdr">
-        <div class="rp-panel-title">Six Macro Scenarios — Current Probability Weights</div>
-        <span class="fc fc-grey">Q1 2026</span>
-      </div>
-      <div class="rp-panel-body">{sc_html}</div>
-    </div>""", unsafe_allow_html=True)
+        sc_html += (
+            '<div class="sc-row">'
+            '<div class="sc-hdr">'
+            f'<div class="sc-name">{name}</div>'
+            f'<div class="sc-prob" style="color:{prob_col};">{prob}</div>'
+            '</div>'
+            f'<div class="sc-track"><div class="sc-fill" style="width:{pct}%;background:{col};"></div></div>'
+            '</div>'
+        )
+    sc_html += '<div style="margin-top:10px;font-family:\'IBM Plex Mono\',monospace;font-size:9px;color:var(--txt3);line-height:1.7;">Probability distributions are scenario-based research assessments, not price forecasts.</div>'
+    st.markdown(
+        '<div class="rp-panel">'
+        '<div class="rp-panel-hdr">'
+        '<div class="rp-panel-title">Six Macro Scenarios \u2014 Current Probability Weights</div>'
+        '<span class="fc fc-grey">Q1 2026</span>'
+        '</div>'
+        f'<div class="rp-panel-body">{sc_html}</div>'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
 with col_log:
     history  = history_rows
     log_rows = ""
     if history:
         for row in history[::-1]:
-            d      = row.get("date","—")[:8]
+            # F10: Full date — show complete YYYY-MM-DD
+            d      = str(row.get("date","—"))[:10]
             gc     = int(float(row.get("gcpi", 0)))
             gr     = float(row.get("grci", 0))
             al     = float(row.get("cronbach_alpha", 0))
@@ -803,27 +833,30 @@ with col_log:
             ph_c2  = phase_color(ph)
             rule_c = "#f87171" if "VETO" in rule.upper() else \
                      "#fbbf24" if "WATCH" in rule.upper() else "#64748b"
-            log_rows += f"""
-            <div class="sig-log-row">
-              <div style="color:var(--txt2);">{d}</div>
-              <div style="color:{gc_c};">{gc}</div>
-              <div style="color:var(--txt3);">{gr:.2f}</div>
-              <div style="color:#34d399;">{al:.2f}</div>
-              <div><span class="fc" style="font-size:8px;background:{ph_c2}22;color:{ph_c2};border:1px solid {ph_c2}44;padding:2px 6px;">Ph{ph}</span></div>
-              <div style="color:{rule_c};font-size:9px;">{rule}</div>
-              <div style="color:var(--txt2);">{cls[:20]}</div>
-            </div>"""
+            log_rows += (
+                '<div class="sig-log-row">'
+                f'<div style="color:var(--txt2);">{d}</div>'
+                f'<div style="color:{gc_c};">{gc}</div>'
+                f'<div style="color:var(--txt3);">{gr:.2f}</div>'
+                f'<div style="color:#34d399;">{al:.2f}</div>'
+                f'<div><span class="fc" style="font-size:8px;background:{ph_c2}22;color:{ph_c2};border:1px solid {ph_c2}44;padding:2px 6px;">Ph{ph}</span></div>'
+                f'<div style="color:{rule_c};font-size:9px;">{rule[:12]}</div>'
+                f'<div style="color:var(--txt2);">{cls[:18]}</div>'
+                '</div>'
+            )
     else:
         log_rows = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:var(--txt3);padding:10px 0;">No history data available.</div>'
 
-    _hdr = ('<div class="sig-log-row sig-log-hdr">'
-             '<div>Date</div><div>GCPI</div><div>GRCI</div>'
-             '<div>α</div><div>Phase</div><div>Rule</div><div>Regime</div>'
-             '</div>')
+    _hdr = (
+        '<div class="sig-log-row sig-log-hdr">'
+        '<div>Date</div><div>GCPI</div><div>GRCI</div>'
+        '<div>\u03b1</div><div>Phase</div><div>Rule</div><div>Regime</div>'
+        '</div>'
+    )
     _log_html = (
         '<div class="rp-panel">'
         + '<div class="rp-panel-hdr">'
-        + '<div class="rp-panel-title">Signal Log — Live Record</div>'
+        + '<div class="rp-panel-title">Signal Log \u2014 Live Record</div>'
         + f'<span class="fc fc-grey">Issue #{issue_num}</span>'
         + '</div>'
         + f'<div class="rp-panel-body">{_hdr}{log_rows}</div>'
@@ -831,7 +864,7 @@ with col_log:
     )
     st.markdown(_log_html, unsafe_allow_html=True)
 
-# ── SECTION 04 — OUTPUT CONTRACT ─────────────────────────────────────────────
+# ── SECTION 04 ────────────────────────────────────────────────────────────────
 st.markdown('<div class="rp-section"><span>04</span> Output Contract — Surveillance Triggers</div>',
             unsafe_allow_html=True)
 
