@@ -463,7 +463,10 @@ macro_fields = [
     ("Brent Crude",     f"${brent_close:.1f}" if brent_close  else "—", "Moderate pressure", "Severe: $105",     "#fbbf24"),
     ("India VIX",       f"{india_vix:.2f}"    if india_vix    else "—", "▲ Elevated",        "Recovery: <14",    "#f87171"),
     ("CBOE VIX",        f"{vix_close:.2f}"    if vix_close    else "—", "▲ Risk-off",        "Recovery: <16",    "#f87171"),
-   ]
+    ("FII Flow MTD",    g("fii_mtd","—"),      "Net flow",               "Cr. — MTD",         "#f87171"),
+    ("US HY Spread",    g("us_hy_spread","—"), "bps",                    "Watch >550",        "#fbbf24"),
+]
+
 mc_html = '<div class="mc-grid">'
 for lbl, val, chg, status, col in macro_fields:
     mc_html += f"""
@@ -480,13 +483,20 @@ st.markdown(mc_html, unsafe_allow_html=True)
 col_left, col_right = st.columns(2, gap="medium")
 
 with col_left:
+    # Tooltips explain each GCPI dimension
     gcpi_dims = [
-        ("D1 Valuation",  gcpi_d1, "ELEVATED"),
-        ("D2 Liquidity",  gcpi_d2, "ELEVATED"),
-        ("D3 Credit",     gcpi_d3, "ELEVATED"),
-        ("D4 FX/Capital", gcpi_d4, "MODERATE"),
-        ("D5 Vol Regime", gcpi_d5, "ELEVATED"),
-        ("D6 Contagion",  gcpi_d6, "CRITICAL"),
+        ("D1 Valuation",  gcpi_d1, "ELEVATED",
+         "Equity & bond valuation vs historical norms.\nHigh = markets overvalued vs fundamentals."),
+        ("D2 Liquidity",  gcpi_d2, "ELEVATED",
+         "System-wide liquidity conditions.\nHigh = credit tightening, funding stress rising."),
+        ("D3 Credit",     gcpi_d3, "ELEVATED",
+         "Credit spread & default risk signals.\nHigh = corporate stress, HY spreads widening."),
+        ("D4 FX/Capital", gcpi_d4, "MODERATE",
+         "Cross-border capital flow & FX stress.\nHigh = EM outflows, rupee pressure, DXY strength."),
+        ("D5 Vol Regime", gcpi_d5, "ELEVATED",
+         "Volatility regime across asset classes.\nHigh = VIX elevated, vol expanding across markets."),
+        ("D6 Contagion",  gcpi_d6, "CRITICAL",
+         "Cross-asset contagion & correlation spike.\nHigh = all assets falling together, no safe haven."),
     ]
     def dim_color(v):
         if v >= 0.70: return "#f87171", "#ef4444"
@@ -494,12 +504,12 @@ with col_left:
         return "#34d399", "#10b981"
 
     rows_html = ""
-    for lbl, val, zone in gcpi_dims:
+    for lbl, val, zone, tip in gcpi_dims:
         tc, bc = dim_color(val)
         pct = int(val * 100)
         rows_html += (
             '<div class="gauge-row">'
-            f'<div class="gauge-lbl">{lbl}</div>'
+            f'<div class="gauge-lbl tooltip" data-tip="{tip}">{lbl}</div>'
             f'<div class="gauge-track"><div class="gauge-fill" style="width:{pct}%;background:{bc};"></div></div>'
             f'<div class="gauge-num" style="color:{tc};">{val:.2f}</div>'
             f'<div class="gauge-zone" style="color:{tc};">{zone}</div>'
@@ -573,23 +583,31 @@ col_grci, col_cci = st.columns(2, gap="medium")
 
 with col_grci:
     grci_sensors = [
-        ("R1 Earnings",   gf("grci_r1",0.08), "Absent"),
-        ("R2 Yield",      gf("grci_r2",0.12), "Absent"),
-        ("R3 FII Flow",   gf("grci_r3",0.05), "Absent"),
-        ("R4 Vol Crush",  gf("grci_r4",0.15), "Absent"),
-        ("R5 Credit Ease",gf("grci_r5",0.10), "Absent"),
-        ("R6 Rupee",      gf("grci_r6",0.18), "Weak"),
-        ("R7 Momentum",   gf("grci_r7",0.12), "Absent"),
-        ("R8 Breadth",    gf("grci_r8",0.20), "Weak"),
+        ("R1 Earnings",   gf("grci_r1",0.08), "Absent",
+         "Earnings revision breadth.\nConfirmed when upgrades > downgrades sustained."),
+        ("R2 Yield",      gf("grci_r2",0.12), "Absent",
+         "India-US yield spread recovery.\nConfirmed when spread > 300bps and rising."),
+        ("R3 FII Flow",   gf("grci_r3",0.05), "Absent",
+         "Foreign institutional investor net flows.\nConfirmed when FII net positive 15+ days."),
+        ("R4 Vol Crush",  gf("grci_r4",0.15), "Absent",
+         "Volatility compression signal.\nConfirmed when India VIX < 14 sustained."),
+        ("R5 Credit Ease",gf("grci_r5",0.10), "Absent",
+         "Credit spread tightening signal.\nConfirmed when HY spreads falling consistently."),
+        ("R6 Rupee",      gf("grci_r6",0.18), "Weak",
+         "Rupee stabilisation & appreciation.\nWeak when USD/INR declining from peak."),
+        ("R7 Momentum",   gf("grci_r7",0.12), "Absent",
+         "Price momentum across indices.\nConfirmed when NIFTY > 50D & 200D MA."),
+        ("R8 Breadth",    gf("grci_r8",0.20), "Weak",
+         "Market breadth recovery.\nWeak when advance-decline ratio improving."),
     ]
     grci_rows = ""
-    for lbl, val, zone in grci_sensors:
+    for lbl, val, zone, tip in grci_sensors:
         pct = int(val * 100)
         gc  = "#34d399" if val >= 0.60 else "#64748b"
         bc  = "#10b981" if val >= 0.60 else "#334155"
         grci_rows += (
             '<div class="gauge-row">'
-            f'<div class="gauge-lbl">{lbl}</div>'
+            f'<div class="gauge-lbl tooltip" data-tip="{tip}">{lbl}</div>'
             f'<div class="gauge-track"><div class="gauge-fill" style="width:{pct}%;background:{bc};"></div></div>'
             f'<div class="gauge-num" style="color:{gc};">{val:.2f}</div>'
             f'<div class="gauge-zone" style="color:{gc};">{zone}</div>'
