@@ -1,0 +1,12 @@
+name: Keep Render Warm
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping dashboard
+        run: curl -s https://ripplepoint-dashboard.onrender.com > /dev/null && echo "Dashboard kept warm"
