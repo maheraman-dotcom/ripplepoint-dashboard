@@ -5,3 +5,6 @@ enableXsrfProtection = false
 
 [theme]
 base = "dark"
+
+[ui]
+hideSidebarNav = false
