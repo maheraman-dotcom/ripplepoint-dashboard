@@ -559,27 +559,27 @@ st.markdown(f"""
   </div>
   <div class="rp-regime-title">{phase_full} <span style="color:{top_bord};">Regime</span></div>
   <div class="rp-chips">
-    <div class="rp-chip">
+    <div class="rp-chip" title="Global Crash Probability Index. Composite of 6 dimensions. Scale 0-100. Green &lt;30, Yellow 30-50, Orange 50-70, Red &gt;70.">
       <div class="rp-chip-lbl">GCPI</div>
       <div class="rp-chip-val" style="color:{gcpi_color(gcpi_val)};">{gcpi_int}</div>
       <div class="rp-chip-sub">{gcpi_zone}</div>
     </div>
-    <div class="rp-chip">
+    <div class="rp-chip" title="Effective GCPI after CCI commodity amplification. Max +15% applied when CCI &gt; 0.65. Reflects true systemic stress level.">
       <div class="rp-chip-lbl">Eff. GCPI</div>
       <div class="rp-chip-val" style="color:{gcpi_color(eff_gcpi)};">{eff_int}</div>
       <div class="rp-chip-sub">+CCI AMP</div>
     </div>
-    <div class="rp-chip">
+    <div class="rp-chip" title="Global Recovery &amp; Coherence Index. Scale 0-1. Recovery confirmed only when GRCI &gt; 0.80 and Alpha &gt; 0.80 simultaneously.">
       <div class="rp-chip-lbl">GRCI</div>
       <div class="rp-chip-val" style="color:#c084fc;">{grci_val:.3f}</div>
       <div class="rp-chip-sub">{grci_status}</div>
     </div>
-    <div class="rp-chip">
+    <div class="rp-chip" title="Commodity Coherence Index. 5 segments: Energy, Metals, Agri, Precious, USD Factor. Downside Drag amplifies GCPI. Upside amplifies GRCI.">
       <div class="rp-chip-lbl">CCI</div>
       <div class="rp-chip-val" style="color:#fbbf24;">{cci_val:.4f}</div>
       <div class="rp-chip-sub">{cci_status[:10]}</div>
     </div>
-    <div class="rp-chip">
+    <div class="rp-chip" title="Cronbach's Alpha coherence score. Measures internal agreement across all engine dimensions. &gt; 0.80 required for rule activation.">
       <div class="rp-chip-lbl">ALPHA</div>
       <div class="rp-chip-val" style="color:#34d399;">{alpha_val:.3f}</div>
       <div class="rp-chip-sub">{alpha_status}</div>
