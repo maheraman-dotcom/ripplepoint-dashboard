@@ -94,7 +94,6 @@ def gz_zone(z):
     return "Normal Range"
 
 # ── AI NARRATIVE ──────────────────────────────────────────────────────────────
-@st.cache_data(ttl=900)
 def get_ai_narrative(gcpi, phase, grci, cci, alpha, run_context):
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
@@ -467,72 +466,63 @@ st.markdown("""
 # ═══════════════════════════════════════════════════════════
 with st.sidebar:
     phase_border_col = phase_color(phase_num)
-    st.markdown(f"""
-    <div style="padding:22px 18px 16px;border-bottom:1px solid var(--border);">
-      <div class="sb-logo">RIPPLE<span>POINT</span></div>
-      <div class="sb-sub">Global Macro Intelligence</div>
-      <div class="sb-phase" style="border:1px solid {phase_border_col}44;background:{phase_border_col}18;">
-        <div class="sb-phase-lbl">Current Regime</div>
-        <div class="sb-phase-val" style="color:{phase_border_col};">Phase {phase_num} — {phase_name}</div>
-      </div>
-    </div>
-    <div class="sb-user" style="padding:10px 18px 0;">
-      Logged in as <span>{user.get('full_name','').split()[0] if user.get('full_name') else user.get('email','')}</span>
-      &nbsp;·&nbsp; <span style="color:{'#c084fc' if user.get('tier')=='institutional' else '#60a5fa' if user.get('tier')=='pro' else '#94a3b8'};">{user.get('tier','free').upper()}</span>
-    </div>
-    """, unsafe_allow_html=True)
+    user_name = user.get('full_name','').split()[0] if user.get('full_name') else user.get('email','')
+    tier_col  = '#c084fc' if user.get('tier')=='institutional' else '#60a5fa' if user.get('tier')=='pro' else '#94a3b8'
+    tier_name = user.get('tier','free').upper()
 
-    nav_items = [
-        ("Dashboards", ["Net Regime Signal", "Global Stretch Map",
-                        "RSDM Pair Matrix", "Macro Anchors"]),
-        ("Engines",    ["GCPI Diagnostic", "GRCI Diagnostic",
-                        "CCI Commodities", "TRM — Ripple Chain"]),
-        ("Research",   ["Scenario Matrix", "Signal Log", "Weekly Report"]),
-        ("Output Lens",["🇮🇳 India Lens", "🇺🇸 US Lens", "🌏 EM Lens"]),
+    # Build nav HTML
+    nav_parts = []
+    sections = [
+        ("Dashboards", ["Net Regime Signal","Global Stretch Map","RSDM Pair Matrix","Macro Anchors"]),
+        ("Engines",    ["GCPI Diagnostic","GRCI Diagnostic","CCI Commodities","TRM — Ripple Chain"]),
+        ("Research",   ["Scenario Matrix","Signal Log","Weekly Report"]),
+        ("Output Lens",["\U0001f1ee\U0001f1f3 India Lens","\U0001f1fa\U0001f1f8 US Lens","\U0001f30f EM Lens"]),
     ]
-
-    for section, items in nav_items:
-        st.markdown(f'<div style="padding:2px 18px;"><div class="sb-nav-section">{section}</div></div>',
-                    unsafe_allow_html=True)
+    for sec, items in sections:
+        nav_parts.append('<div style="padding:2px 18px;"><div class="sb-nav-section">' + sec + '</div></div>')
         for item in items:
-            is_active = (item == "Net Regime Signal") or (item == "🇮🇳 India Lens")
-            bg     = "rgba(59,130,246,0.08)" if is_active else "transparent"
-            col    = "#60a5fa" if is_active else "#94a3b8"
-            border = "#3b82f6" if is_active else "transparent"
-            dot_c  = "#60a5fa" if is_active else "#64748b"
-            st.markdown(f"""
-            <div style="display:flex;align-items:center;gap:10px;padding:8px 18px;
-                        background:{bg};border-left:3px solid {border};cursor:pointer;">
-              <div style="width:6px;height:6px;border-radius:50%;background:{dot_c};flex-shrink:0;"></div>
-              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;
-                           color:{col};letter-spacing:0.03em;">{item}</span>
-            </div>""", unsafe_allow_html=True)
+            active = item in ("Net Regime Signal", "\U0001f1ee\U0001f1f3 India Lens")
+            bg  = "rgba(59,130,246,0.08)" if active else "transparent"
+            col = "#60a5fa" if active else "#94a3b8"
+            bdr = "#3b82f6" if active else "transparent"
+            dot = "#60a5fa" if active else "#64748b"
+            nav_parts.append(
+                '<div style="display:flex;align-items:center;gap:10px;padding:8px 18px;'
+                'background:' + bg + ';border-left:3px solid ' + bdr + ';">'
+                '<div style="width:6px;height:6px;border-radius:50%;background:' + dot + ';flex-shrink:0;"></div>'
+                '<span style="font-family:IBM Plex Mono,monospace;font-size:11px;color:' + col + ';">' + item + '</span>'
+                '</div>'
+            )
+    nav_html = "".join(nav_parts)
 
-    admin_emails = os.environ.get("ADMIN_EMAILS", "").split(",")
+    admin_emails = os.environ.get("ADMIN_EMAILS","").split(",")
+    admin_html = ""
     if user.get("email","").strip() in [e.strip() for e in admin_emails]:
-        st.markdown("""
-        <div style="padding:2px 18px;"><div class="sb-nav-section">Admin</div></div>
-        <div style="padding:4px 18px;">
-          <a href="/admin" style="font-family:'IBM Plex Mono',monospace;font-size:11px;
-             color:#f87171;letter-spacing:0.03em;text-decoration:none;">
-            ⚙ User Management
-          </a>
-        </div>""", unsafe_allow_html=True)
+        admin_html = '<div style="padding:2px 18px;"><div class="sb-nav-section">Admin</div></div><div style="padding:4px 18px;"><a href="/admin" style="font-family:IBM Plex Mono,monospace;font-size:11px;color:#f87171;text-decoration:none;">\u2699 User Management</a></div>'
 
-    st.markdown('<div style="padding:0 18px 16px;">', unsafe_allow_html=True)
+    sidebar_html = (
+        '<div style="padding:22px 18px 16px;border-bottom:1px solid #1e2d42;">'
+        '<div class="sb-logo">RIPPLE<span>POINT</span></div>'
+        '<div class="sb-sub">Global Macro Intelligence</div>'
+        '<div class="sb-phase" style="border:1px solid ' + phase_border_col + '44;background:' + phase_border_col + '18;">'
+        '<div class="sb-phase-lbl">Current Regime</div>'
+        '<div class="sb-phase-val" style="color:' + phase_border_col + ';">Phase ' + phase_num + ' \u2014 ' + phase_name + '</div>'
+        '</div></div>'
+        '<div style="padding:10px 18px 0;font-family:IBM Plex Mono,monospace;font-size:9px;color:#64748b;">'
+        'Logged in as <span style="color:#60a5fa;">' + user_name + '</span>'
+        ' \u00b7 <span style="color:' + tier_col + ';">' + tier_name + '</span>'
+        '</div>'
+        + nav_html + admin_html +
+        '<div style="padding:12px 18px 16px;">'
+        '<div class="sb-disclaimer">For research purposes only.<br>Not investment advice.<br>'
+        'Not SEBI registered advisory.<br>\u00a9 Ripple Axis Systems 2026</div>'
+        '</div>'
+    )
+    st.markdown(sidebar_html, unsafe_allow_html=True)
+
     if st.button("Sign Out", key="signout", type="secondary"):
         supabase_sign_out()
         st.rerun()
-
-    st.markdown(f"""
-      <div class="sb-disclaimer">
-        For research purposes only.<br>
-        Not investment advice.<br>
-        Not SEBI registered advisory.<br>
-        © Ripple Axis Systems 2026
-      </div>
-    </div>""", unsafe_allow_html=True)
-
 
 # ═══════════════════════════════════════════════════════════
 # MAIN CONTENT
