@@ -11,10 +11,10 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-st._config.set_option("client.showSidebarNavigation", False)
 
 # ── AUTH IMPORTS + GATE ───────────────────────────────────────────────────────
-from auth import is_logged_in, current_user, is_approved, supabase_sign_out
+from auth import (is_logged_in, current_user, is_approved, 
+                  supabase_sign_out, restore_session, persist_session)
 from login_page import render_login_page
 
 # ── F2: SESSION PERSISTENCE — restore session from query params or cookie ─────
@@ -38,7 +38,7 @@ def persist_session():
         st.session_state._rp_token_persist = st.session_state.get("rp_token")
         st.session_state._rp_user_persist  = st.session_state.get("rp_user")
 
-# Attempt restore then check
+# F2: Cookie-based session restore
 restore_session()
 persist_session()
 
