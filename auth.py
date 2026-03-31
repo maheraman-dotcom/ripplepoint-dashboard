@@ -1,11 +1,14 @@
 import streamlit as st
 import os
 import requests
-from datetime import datetime, timezone
+import extra_streamlit_components as stx
+from datetime import datetime, timezone, timedelta
 
 SUPABASE_URL     = os.environ.get("SUPABASE_URL", "")
 SUPABASE_ANON    = os.environ.get("SUPABASE_ANON_KEY", "")
 SUPABASE_SERVICE = os.environ.get("SUPABASE_SERVICE_KEY", "")
+COOKIE_NAME      = "rp_auth_token"
+COOKIE_EXPIRY    = 30  # days
 
 def _anon_headers():
     return {
@@ -21,6 +24,75 @@ def _service_headers():
         "Content-Type":  "application/json",
         "Prefer":        "return=representation",
     }
+
+def get_cookie_manager():
+    return stx.CookieManager(key="rp_cookie_manager")
+
+def save_session_cookie(user_data):
+    """Save session to browser cookie."""
+    try:
+        import json
+        cm = get_cookie_manager()
+        cookie_val = json.dumps({
+            "email":     user_data.get("email", ""),
+            "full_name": user_data.get("full_name", ""),
+            "status":    user_data.get("status", ""),
+            "tier":      user_data.get("tier", ""),
+            "token":     user_data.get("access_token", ""),
+            "user_id":   user_data.get("user_id", ""),
+        })
+        cm.set(COOKIE_NAME, cookie_val,
+               expires_at=datetime.now() + timedelta(days=COOKIE_EXPIRY))
+    except Exception as e:
+        pass
+
+def load_session_cookie():
+    """Load session from browser cookie."""
+    try:
+        import json
+        cm = get_cookie_manager()
+        cookie_val = cm.get(COOKIE_NAME)
+        if cookie_val:
+            return json.loads(cookie_val)
+    except:
+        pass
+    return None
+
+def clear_session_cookie():
+    """Clear browser cookie on logout."""
+    try:
+        cm = get_cookie_manager()
+        cm.delete(COOKIE_NAME)
+    except:
+        pass
+
+def restore_session():
+    """Restore session from cookie or session state."""
+    if st.session_state.get("rp_logged_in"):
+        return True
+    # Try session state persist
+    token = st.session_state.get("_rp_token_persist")
+    user  = st.session_state.get("_rp_user_persist")
+    if token and user:
+        st.session_state.rp_logged_in = True
+        st.session_state.rp_token     = token
+        st.session_state.rp_user      = user
+        return True
+    # Try cookie
+    cookie_data = load_session_cookie()
+    if cookie_data and cookie_data.get("token"):
+        st.session_state.rp_logged_in      = True
+        st.session_state.rp_token          = cookie_data.get("token")
+        st.session_state._rp_token_persist = cookie_data.get("token")
+        st.session_state.rp_user           = cookie_data
+        st.session_state._rp_user_persist  = cookie_data
+        return True
+    return False
+
+def persist_session():
+    if st.session_state.get("rp_logged_in"):
+        st.session_state._rp_token_persist = st.session_state.get("rp_token")
+        st.session_state._rp_user_persist  = st.session_state.get("rp_user")
 
 def supabase_sign_in(email, password):
     try:
@@ -47,7 +119,6 @@ def supabase_sign_in(email, password):
             headers=_service_headers(),
             timeout=10
         )
-
         if r2.status_code != 200:
             return False, f"Profile fetch failed: {r2.status_code}"
 
@@ -56,7 +127,7 @@ def supabase_sign_in(email, password):
             return False, "Profile not found. Contact maheraman@gmail.com"
 
         profile = profiles[0]
-        return True, {
+        user_data = {
             "access_token": access_token,
             "user_id":      user_id,
             "email":        email,
@@ -64,6 +135,9 @@ def supabase_sign_in(email, password):
             "status":       profile.get("status", "pending"),
             "tier":         profile.get("tier", "none"),
         }
+        # Save to cookie on successful login
+        save_session_cookie(user_data)
+        return True, user_data
 
     except requests.exceptions.Timeout:
         return False, "Connection timed out. Please try again."
@@ -77,7 +151,8 @@ def supabase_sign_up(email, password, full_name):
         r = requests.post(
             f"{SUPABASE_URL}/auth/v1/signup",
             headers=_anon_headers(),
-            json={"email": email, "password": password, "data": {"full_name": full_name}},
+            json={"email": email, "password": password,
+                  "data": {"full_name": full_name}},
             timeout=15
         )
         body = r.json()
@@ -98,13 +173,14 @@ def supabase_sign_up(email, password, full_name):
         )
         if r2.status_code not in (200, 201):
             return False, f"Profile creation failed: {r2.text[:80]}"
-
         return True, "Registration submitted. Access granted once approved."
     except Exception as e:
         return False, f"Sign-up error: {str(e)[:100]}"
 
 def supabase_sign_out():
-    for key in ["rp_logged_in", "rp_user", "rp_token", "_rp_token_persist", "_rp_user_persist"]:
+    clear_session_cookie()
+    for key in ["rp_logged_in", "rp_user", "rp_token",
+                "_rp_token_persist", "_rp_user_persist"]:
         if key in st.session_state:
             del st.session_state[key]
 
