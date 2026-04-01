@@ -13,8 +13,7 @@ st.set_page_config(
 )
 
 # ── AUTH IMPORTS + GATE ───────────────────────────────────────────────────────
-from auth import (is_logged_in, current_user, is_approved, 
-                  supabase_sign_out, restore_session, persist_session)
+from auth import is_logged_in, current_user, is_approved, supabase_sign_out
 from login_page import render_login_page
 
 # ── F2: SESSION PERSISTENCE — restore session from query params or cookie ─────
@@ -38,7 +37,7 @@ def persist_session():
         st.session_state._rp_token_persist = st.session_state.get("rp_token")
         st.session_state._rp_user_persist  = st.session_state.get("rp_user")
 
-# F2: Cookie-based session restore
+# Attempt restore then check
 restore_session()
 persist_session()
 
@@ -934,6 +933,187 @@ with col_log:
         + '</div>'
     )
     st.markdown(_log_html, unsafe_allow_html=True)
+
+# ── SECTION 05 — GFSI + TRM ──────────────────────────────────────────────────
+st.markdown('<div class="rp-section"><span>05</span> Geopolitical Fracture Stress &amp; Trigger Ripple Model</div>',
+            unsafe_allow_html=True)
+
+c8 = data.get("chart8_gfsi", {})
+c9 = data.get("chart9_trm",  {})
+
+col_gfsi, col_trm = st.columns(2, gap="medium")
+
+with col_gfsi:
+    gfsi_score_val = c8.get("current_score", None)
+    gfsi_zone_val  = str(c8.get("current_zone",  "PENDING"))
+    gfsi_mult_val2 = c8.get("multiplier",    1.0)
+    gfsi_eff_val   = c8.get("effective_gcpi_gfsi", None)
+    gfsi_dims_val  = c8.get("dimensions",   {})
+    gfsi_clus_val  = c8.get("clusters",     {})
+    gfsi_src_val   = str(c8.get("data_source", "RSS + VADER"))
+
+    if gfsi_score_val is not None:
+        gs  = float(gfsi_score_val)
+        gsi = int(gs)
+        gc2 = "#f87171" if gs >= 80 else "#fbbf24" if gs >= 60 else "#22d3ee" if gs >= 30 else "#34d399"
+
+        dim_html = ""
+        for dn, dv in gfsi_dims_val.items():
+            pct = int(float(dv) * 100)
+            dc  = "#f87171" if pct >= 70 else "#fbbf24" if pct >= 50 else "#34d399"
+            bc  = "#ef4444" if pct >= 70 else "#f59e0b" if pct >= 50 else "#10b981"
+            dim_html += (
+                '<div class="gauge-row">'
+                + '<div class="gauge-lbl">' + dn + '</div>'
+                + '<div class="gauge-track"><div class="gauge-fill" style="width:' + str(pct) + '%;background:' + bc + ';"></div></div>'
+                + '<div class="gauge-num" style="color:' + dc + ';">' + str(float(dv))[:4] + '</div>'
+                + '</div>'
+            )
+
+        clus_html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:10px;">'
+        clus_labels = {
+            "territorial_escalation":"Territorial","sanctions_trade_politics":"Sanctions",
+            "energy_supplychain":"Energy/Supply","strategic_tech_economic":"Tech/Econ",
+            "epidemic_climate_disaster":"Epidemic","cyber_infrastructure":"Cyber",
+            "regime_bipartisan_global":"Regime/Global"
+        }
+        for ck, cv in gfsi_clus_val.items():
+            cv2  = float(cv)
+            clbl = clus_labels.get(ck, ck[:10])
+            cco  = "#f87171" if cv2 >= 7 else "#fbbf24" if cv2 >= 5.5 else "#34d399"
+            clus_html += (
+                '<div style="background:#161f2e;border:1px solid #1e2d42;border-radius:5px;padding:6px 8px;">'
+                + '<div style="font-family:IBM Plex Mono,monospace;font-size:8px;color:#64748b;">' + clbl + '</div>'
+                + '<div style="font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;color:' + cco + ';">' + f"{cv2:.1f}" + '/10</div>'
+                + '</div>'
+            )
+        clus_html += '</div>'
+
+        eff_chip = ""
+        if gfsi_eff_val:
+            ev   = float(gfsi_eff_val)
+            ecol = "#f87171" if ev >= 80 else "#fbbf24" if ev >= 60 else "#34d399"
+            eff_chip = (
+                '<div class="rp-chip"><div class="rp-chip-lbl">Eff.GCPI+GFSI</div>'
+                + '<div class="rp-chip-val" style="color:' + ecol + ';">' + str(int(ev)) + '</div>'
+                + '<div class="rp-chip-sub">adjusted</div></div>'
+            )
+
+        gfsi_out = (
+            '<div class="rp-panel">'
+            + '<div class="rp-panel-hdr">'
+            + '<div class="rp-panel-title">GFSI — Geopolitical Fracture Stress</div>'
+            + '<span class="fc fc-amber">' + str(gsi) + ' · ' + gfsi_zone_val + '</span>'
+            + '</div><div class="rp-panel-body">'
+            + '<div style="display:flex;gap:10px;margin-bottom:12px;">'
+            + '<div class="rp-chip"><div class="rp-chip-lbl">GFSI</div>'
+            + '<div class="rp-chip-val" style="color:' + gc2 + ';">' + str(gsi) + '</div>'
+            + '<div class="rp-chip-sub">' + gfsi_zone_val + '</div></div>'
+            + '<div class="rp-chip"><div class="rp-chip-lbl">Multiplier</div>'
+            + '<div class="rp-chip-val" style="color:#fbbf24;">' + f"{float(gfsi_mult_val2):.2f}" + 'x</div>'
+            + '<div class="rp-chip-sub">on Eff.GCPI</div></div>'
+            + eff_chip + '</div>'
+            + dim_html + clus_html
+            + '<div style="margin-top:8px;font-family:IBM Plex Mono,monospace;font-size:8px;color:#64748b;">Source: ' + gfsi_src_val + '</div>'
+            + '</div></div>'
+        )
+        st.markdown(gfsi_out, unsafe_allow_html=True)
+    else:
+        st.markdown(
+            '<div class="rp-panel"><div class="rp-panel-hdr">'
+            + '<div class="rp-panel-title">GFSI — Geopolitical Fracture Stress</div>'
+            + '<span class="fc fc-grey">PENDING</span></div>'
+            + '<div class="rp-panel-body" style="font-family:IBM Plex Mono,monospace;font-size:10px;color:#64748b;padding:20px 0;">'
+            + 'Run NB2 Cells 1–10 to generate GFSI scores.</div></div>',
+            unsafe_allow_html=True
+        )
+
+with col_trm:
+    trm_sc   = c9.get("trm_score",          None)
+    trm_band = str(c9.get("magnitude_band", "PENDING"))
+    trm_rng  = str(c9.get("magnitude_range","—"))
+    trm_res  = str(c9.get("reservoir_level","—"))
+    trm_rs   = c9.get("reservoir_score",    0)
+    trm_ign  = c9.get("ignition_probability",0)
+    trm_il   = str(c9.get("ignition_label", "—"))
+    trm_tr   = c9.get("transmission",       0)
+    trm_ch   = str(c9.get("primary_channel","—"))
+    trm_org  = str(c9.get("rsdm_origin",    "—"))
+    trm_w1   = c9.get("wave1", 0)
+    trm_w2   = c9.get("wave2", 0)
+    trm_w3   = c9.get("wave3", 0)
+    trm_mom  = str(c9.get("wave_momentum",  "—"))
+
+    if trm_sc is not None:
+        ts  = float(trm_sc)
+        tsi = int(ts)
+        band_colors = {"EXTREME":"#f87171","SEVERE":"#f87171","MODERATE":"#fbbf24",
+                       "MILD":"#22d3ee","CONTAINED":"#34d399"}
+        tc  = band_colors.get(trm_band.upper(), "#94a3b8")
+
+        comp_html = (
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;">'
+            + '<div style="background:#161f2e;border:1px solid #1e2d42;border-radius:5px;padding:8px;">'
+            + '<div style="font-family:IBM Plex Mono,monospace;font-size:8px;color:#64748b;">Reservoir</div>'
+            + '<div style="font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;color:#60a5fa;">' + trm_res + '</div>'
+            + '<div style="font-family:IBM Plex Mono,monospace;font-size:9px;color:#64748b;">' + f"{float(trm_rs):.2f}" + '</div></div>'
+            + '<div style="background:#161f2e;border:1px solid #1e2d42;border-radius:5px;padding:8px;">'
+            + '<div style="font-family:IBM Plex Mono,monospace;font-size:8px;color:#64748b;">Ignition</div>'
+            + '<div style="font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;color:#fbbf24;">' + trm_il + '</div>'
+            + '<div style="font-family:IBM Plex Mono,monospace;font-size:9px;color:#64748b;">' + f"{float(trm_ign):.3f}" + '</div></div>'
+            + '<div style="background:#161f2e;border:1px solid #1e2d42;border-radius:5px;padding:8px;">'
+            + '<div style="font-family:IBM Plex Mono,monospace;font-size:8px;color:#64748b;">Transmission</div>'
+            + '<div style="font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;color:#c084fc;">' + f"{float(trm_tr):.3f}" + '</div>'
+            + '<div style="font-family:IBM Plex Mono,monospace;font-size:9px;color:#64748b;">' + trm_ch[:18] + '</div></div>'
+            + '<div style="background:#161f2e;border:1px solid #1e2d42;border-radius:5px;padding:8px;">'
+            + '<div style="font-family:IBM Plex Mono,monospace;font-size:8px;color:#64748b;">Momentum</div>'
+            + '<div style="font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;color:#34d399;">' + trm_mom + '</div>'
+            + '<div style="font-family:IBM Plex Mono,monospace;font-size:9px;color:#64748b;">' + trm_org[:14] + '</div></div>'
+            + '</div>'
+        )
+
+        wave_html = ""
+        for wl, wv in [("Wave 1 (Days)", trm_w1), ("Wave 2 (Weeks)", trm_w2), ("Wave 3 (Months)", trm_w3)]:
+            pct = int(float(wv) * 100)
+            wc  = "#f87171" if pct >= 70 else "#fbbf24" if pct >= 50 else "#34d399"
+            bc  = "#ef4444" if pct >= 70 else "#f59e0b" if pct >= 50 else "#10b981"
+            wave_html += (
+                '<div class="gauge-row">'
+                + '<div class="gauge-lbl">' + wl + '</div>'
+                + '<div class="gauge-track"><div class="gauge-fill" style="width:' + str(pct) + '%;background:' + bc + ';"></div></div>'
+                + '<div class="gauge-num" style="color:' + wc + ';">' + f"{float(wv):.2f}" + '</div>'
+                + '</div>'
+            )
+
+        trm_out = (
+            '<div class="rp-panel">'
+            + '<div class="rp-panel-hdr">'
+            + '<div class="rp-panel-title">TRM — Trigger Ripple Model</div>'
+            + '<span class="fc fc-amber">' + str(tsi) + ' · ' + trm_band + '</span>'
+            + '</div><div class="rp-panel-body">'
+            + '<div style="display:flex;gap:10px;margin-bottom:12px;">'
+            + '<div class="rp-chip"><div class="rp-chip-lbl">TRM Score</div>'
+            + '<div class="rp-chip-val" style="color:' + tc + ';">' + str(tsi) + '</div>'
+            + '<div class="rp-chip-sub">' + trm_band + '</div></div>'
+            + '<div class="rp-chip"><div class="rp-chip-lbl">Drawdown</div>'
+            + '<div class="rp-chip-val" style="color:' + tc + ';font-size:16px;">' + trm_rng + '</div>'
+            + '<div class="rp-chip-sub">range</div></div>'
+            + '</div>'
+            + comp_html + wave_html
+            + '<div style="margin-top:8px;font-family:IBM Plex Mono,monospace;font-size:8px;color:#64748b;">'
+            + 'Wave Momentum: ' + trm_mom + ' · Origin: ' + trm_org + '</div>'
+            + '</div></div>'
+        )
+        st.markdown(trm_out, unsafe_allow_html=True)
+    else:
+        st.markdown(
+            '<div class="rp-panel"><div class="rp-panel-hdr">'
+            + '<div class="rp-panel-title">TRM — Trigger Ripple Model</div>'
+            + '<span class="fc fc-grey">PENDING</span></div>'
+            + '<div class="rp-panel-body" style="font-family:IBM Plex Mono,monospace;font-size:10px;color:#64748b;padding:20px 0;">'
+            + 'Run NB2 Cells 1–10 to generate TRM scores.</div></div>',
+            unsafe_allow_html=True
+        )
 
 # ── SECTION 04 ────────────────────────────────────────────────────────────────
 st.markdown('<div class="rp-section"><span>04</span> Output Contract — Surveillance Triggers</div>',
