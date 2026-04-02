@@ -4,6 +4,128 @@ import os
 import requests
 from datetime import datetime
 
+# ── DECISION ENGINE ───────────────────────────────────────────────────────────
+def compute_decision_layer(gcpi, phase, trm_score, gfsi_score,
+                           grci, alpha, cci_dir, trm_band,
+                           gcpi_prev=None, gfsi_prev=None,
+                           trm_prev=None, alpha_prev=None):
+    phase = int(phase)
+    gcpi  = float(gcpi)
+    trm   = float(trm_score) if trm_score else 50.0
+    gfsi  = float(gfsi_score) if gfsi_score else 40.0
+
+    phase_labels = {
+        1:"Phase 1 — Stable Equilibrium", 2:"Phase 2 — Compression Building",
+        3:"Phase 3 — Volatility Expansion", 4:"Phase 4 — Active Fragility",
+        5:"Phase 5 — Active Recovery",     6:"Phase 6 — Conflicted Regime"
+    }
+    regime = phase_labels.get(phase, f"Phase {phase}")
+
+    if phase == 1 and gcpi < 30:
+        bias = "Neutral — System in baseline equilibrium"
+    elif phase == 1 and gcpi >= 30:
+        bias = "Mild Caution — Equilibrium with early stress signals"
+    elif phase == 2 and alpha < 0.70:
+        bias = "Watchful — Compression building, coherence not yet confirmed"
+    elif phase == 2 and alpha >= 0.70:
+        bias = "Elevated Caution — Compression building with coherent signals"
+    elif phase == 3 and gcpi < 60:
+        bias = "Defensive Orientation — Volatility expansion in progress"
+    elif phase == 3 and gcpi >= 60:
+        bias = "High Alert — Volatility expansion with elevated fragility"
+    elif phase == 4:
+        bias = "Maximum Caution — Active fragility regime confirmed"
+    elif phase == 5:
+        bias = "Recovery Watch — Early recovery signals building"
+    elif phase == 6:
+        bias = "Conflicted — Mixed signals, elevated uncertainty"
+    else:
+        bias = "Monitoring — Insufficient signal coherence"
+
+    risk_score = 0
+    if gcpi < 30:   risk_score += 1
+    elif gcpi < 50: risk_score += 2
+    elif gcpi < 70: risk_score += 3
+    else:           risk_score += 4
+    if trm < 25:    risk_score += 1
+    elif trm < 45:  risk_score += 2
+    elif trm < 65:  risk_score += 3
+    else:           risk_score += 4
+    if gfsi < 30:   risk_score += 1
+    elif gfsi < 60: risk_score += 2
+    elif gfsi < 80: risk_score += 3
+    else:           risk_score += 4
+
+    if risk_score <= 4:   risk_level, risk_color = "LOW",      "#34d399"
+    elif risk_score <= 7: risk_level, risk_color = "MODERATE", "#fbbf24"
+    elif risk_score <= 10:risk_level, risk_color = "ELEVATED", "#f97316"
+    else:                 risk_level, risk_color = "HIGH",     "#f87171"
+
+    action_map = {
+        (1,"LOW"):      ("Broad participation historically consistent with this regime","Standard risk management thresholds apply"),
+        (1,"MODERATE"): ("Selective participation — quality and liquidity premium observed historically","Monitor for Phase 2 transition signals"),
+        (1,"ELEVATED"): ("Cautious orientation — historically associated with reduced reward-to-risk","Elevated surveillance frequency warranted"),
+        (2,"LOW"):      ("Compression phase — historically precedes directional clarity","Maintain surveillance on GCPI and Alpha convergence"),
+        (2,"MODERATE"): ("Compression deepening — historically associated with positioning caution","Watch for Phase 3 escalation or Phase 1 normalisation"),
+        (2,"ELEVATED"): ("Elevated compression — fragility building across multiple dimensions","Risk management review historically warranted in this configuration"),
+        (3,"MODERATE"): ("Volatility expansion — historically associated with elevated dispersion","Concentration risk historically elevated in this phase"),
+        (3,"ELEVATED"): ("Active volatility — defensive orientation historically outperformed","Capital preservation posture consistent with this regime"),
+        (3,"HIGH"):     ("Fragility escalation — historically associated with significant drawdown risk","Veto rule approaching — surveillance at maximum frequency"),
+        (4,"HIGH"):     ("Active fragility confirmed — historically the highest drawdown risk phase","Veto rule active — recovery confirmation requires GRCI > 0.80 + Alpha > 0.80"),
+        (5,"LOW"):      ("Recovery building — historically associated with improving reward-to-risk","Confirmation rule not yet active — GRCI + Alpha thresholds not met"),
+        (5,"MODERATE"): ("Early recovery — selective re-engagement historically consistent","Monitor GRCI and Alpha for confirmation rule activation"),
+        (6,"MODERATE"): ("Conflicted regime — historically associated with elevated uncertainty premium","Directional clarity awaited — mixed signal environment"),
+    }
+    key = (phase, risk_level)
+    if key in action_map:
+        action_primary, action_secondary = action_map[key]
+    else:
+        action_primary  = "Cautious orientation historically consistent with this configuration"
+        action_secondary = "Risk management review warranted"
+
+    changes = []
+    if gcpi_prev is not None:
+        diff = float(gcpi) - float(gcpi_prev)
+        if abs(diff) >= 1.0:
+            changes.append(f"GCPI {'↑' if diff>0 else '↓'} {abs(diff):.1f} pts — {'fragility building' if diff>0 else 'stress easing'}")
+    if gfsi_prev is not None:
+        diff = float(gfsi) - float(gfsi_prev)
+        if abs(diff) >= 1.0:
+            changes.append(f"GFSI {'↑' if diff>0 else '↓'} {abs(diff):.1f} pts — {'geopolitical stress rising' if diff>0 else 'geopolitical pressure easing'}")
+    if trm_prev is not None:
+        diff = float(trm) - float(trm_prev)
+        if abs(diff) >= 1.0:
+            changes.append(f"TRM {'↑' if diff>0 else '↓'} {abs(diff):.1f} pts — {'propagation risk rising' if diff>0 else 'transmission risk easing'}")
+    if alpha_prev is not None:
+        diff = float(alpha) - float(alpha_prev)
+        if abs(diff) >= 0.02:
+            changes.append(f"Alpha {'↑' if diff>0 else '↓'} {abs(diff):.3f} — {'coherence strengthening' if diff>0 else 'signal divergence increasing'}")
+    if not changes:
+        changes = ["No significant engine movement since prior reading"]
+
+    watch = []
+    if gcpi >= 45:
+        watch.append(("GCPI > 50", "Phase 3 escalation threshold — Veto Rule approaching"))
+    elif gcpi >= 25:
+        watch.append(("GCPI approaching 30", "Yellow zone entry — compression signal"))
+    if gfsi >= 70:
+        watch.append(("GFSI elevated", "GCPI multiplier at +10% — amplification active"))
+    elif gfsi >= 55:
+        watch.append(("GFSI > 60", "Would elevate multiplier to +10% on Effective GCPI"))
+    watch.append(("DXY > 101", "Historically associated with EM capital pressure and GCPI D4 escalation"))
+    watch.append(("Brent > $105", "Stagflationary configuration risk — CCI amplification trigger"))
+    if float(grci) < 0.80:
+        watch.append(("GRCI + Alpha > 0.80", "Required for recovery confirmation rule activation"))
+    if trm >= 60:
+        watch.append(("TRM magnitude", f"Current band: {trm_band} — historical drawdown reference active"))
+
+    return {
+        "regime": regime, "bias": bias,
+        "risk_level": risk_level, "risk_color": risk_color,
+        "action_primary": action_primary, "action_secondary": action_secondary,
+        "changes": changes, "watch": watch,
+    }
+
 # ── PAGE CONFIG ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="RIPPLEPOINT — Global Macro Intelligence",
@@ -213,6 +335,30 @@ except:
     pass
 issue_num  = data.get("issue_number", "—")
 run_label  = data.get("run_label", "—")
+
+# ── NET DECISION LAYER ───────────────────────────────────────────────────────
+# Get yesterday's values for "what changed"
+hist_dates_list = hist.get("dates", [])
+hist_gcpi_list  = hist.get("gcpi",  [])
+gcpi_prev = float(hist_gcpi_list[-2]) if len(hist_gcpi_list) >= 2 else None
+gfsi_prev = None  # Will add history in future update
+trm_prev  = None
+alpha_prev = None
+
+_dl = compute_decision_layer(
+    gcpi      = gcpi_val,
+    phase     = phase_num,
+    trm_score = gf("trm_score", 50.0),
+    gfsi_score= gf("gfsi_score", 40.0),
+    grci      = grci_val,
+    alpha     = alpha_val,
+    cci_dir   = cci_dir,
+    trm_band  = g("trm_magnitude_band", "MODERATE"),
+    gcpi_prev = gcpi_prev,
+    gfsi_prev = gfsi_prev,
+    trm_prev  = trm_prev,
+    alpha_prev= alpha_prev,
+)
 
 # Z-scores
 nifty_z20   = gz("NIFTY50")
@@ -553,6 +699,85 @@ st.markdown("""
   investment advice, a recommendation to transact in any security, or a solicitation of any kind.
   RIPPLEPOINT is not registered as an investment advisor with SEBI or any regulatory authority.
   Users are solely responsible for their investment decisions.
+</div>
+""", unsafe_allow_html=True)
+
+# ── NET DECISION ENGINE PANEL ────────────────────────────────────────────────
+risk_col_map = {
+    "LOW":      ("#34d399", "rgba(16,185,129,0.08)", "rgba(16,185,129,0.25)"),
+    "MODERATE": ("#fbbf24", "rgba(245,158,11,0.08)",  "rgba(245,158,11,0.25)"),
+    "ELEVATED": ("#f97316", "rgba(249,115,22,0.08)",  "rgba(249,115,22,0.25)"),
+    "HIGH":     ("#f87171", "rgba(239,68,68,0.08)",   "rgba(239,68,68,0.3)"),
+}
+rl = _dl["risk_level"]
+rc, rbg, rbdr = risk_col_map.get(rl, ("#94a3b8","rgba(100,116,139,0.08)","rgba(100,116,139,0.25)"))
+
+changes_html = "".join(
+    f'<div style="font-family:IBM Plex Mono,monospace;font-size:10px;color:#94a3b8;padding:2px 0;">'
+    + f'<span style="color:{rc};">→</span> {c}</div>'
+    for c in _dl["changes"]
+)
+
+watch_html = "".join(
+    f'<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">'
+    + f'<span style="font-family:IBM Plex Mono,monospace;font-size:9px;color:#fbbf24;min-width:120px;flex-shrink:0;">{w[0]}</span>'
+    + f'<span style="font-family:IBM Plex Mono,monospace;font-size:9px;color:#64748b;">{w[1]}</span>'
+    + '</div>'
+    for w in _dl["watch"]
+)
+
+st.markdown(f"""
+<div style="background:linear-gradient(135deg,#0a1628,#0d1e35);border:1px solid {rbdr};
+            border-left:4px solid {rc};border-radius:8px;padding:16px 20px;margin-bottom:18px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <div style="font-family:IBM Plex Mono,monospace;font-size:9px;letter-spacing:0.16em;
+                text-transform:uppercase;color:#64748b;">
+      Net Decision Engine · {as_of_date}
+    </div>
+    <div style="background:{rbg};border:1px solid {rbdr};border-radius:4px;
+                padding:3px 10px;font-family:IBM Plex Mono,monospace;
+                font-size:10px;font-weight:600;color:{rc};">
+      RISK LEVEL: {rl}
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+    <div>
+      <div style="font-family:IBM Plex Mono,monospace;font-size:8px;letter-spacing:0.12em;
+                  text-transform:uppercase;color:#475569;margin-bottom:4px;">Regime</div>
+      <div style="font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;
+                  color:#e2e8f0;">{_dl["regime"]}</div>
+    </div>
+    <div>
+      <div style="font-family:IBM Plex Mono,monospace;font-size:8px;letter-spacing:0.12em;
+                  text-transform:uppercase;color:#475569;margin-bottom:4px;">System Bias</div>
+      <div style="font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;
+                  color:{rc};">{_dl["bias"]}</div>
+    </div>
+    <div>
+      <div style="font-family:IBM Plex Mono,monospace;font-size:8px;letter-spacing:0.12em;
+                  text-transform:uppercase;color:#475569;margin-bottom:4px;">Regime Lens</div>
+      <div style="font-family:IBM Plex Mono,monospace;font-size:10px;color:#94a3b8;line-height:1.5;">
+        {_dl["action_primary"]}</div>
+    </div>
+  </div>
+  <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;
+              display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div>
+      <div style="font-family:IBM Plex Mono,monospace;font-size:8px;letter-spacing:0.12em;
+                  text-transform:uppercase;color:#475569;margin-bottom:6px;">What Changed</div>
+      {changes_html}
+    </div>
+    <div>
+      <div style="font-family:IBM Plex Mono,monospace;font-size:8px;letter-spacing:0.12em;
+                  text-transform:uppercase;color:#475569;margin-bottom:6px;">Watch Conditions</div>
+      {watch_html}
+    </div>
+  </div>
+  <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.04);
+              font-family:IBM Plex Mono,monospace;font-size:8px;color:#334155;line-height:1.6;">
+    All observations are diagnostic only. Historical regime characterisations are not 
+    investment advice or trade recommendations. Users are solely responsible for their decisions.
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
