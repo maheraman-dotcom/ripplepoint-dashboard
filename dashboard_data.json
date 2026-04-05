@@ -1,22 +1,22 @@
 {
-  "generated": "2026-04-04",
-  "generated_time": "2026-04-04 11:33:14",
-  "run_label": "India Market Close \u2014 2026-04-04",
+  "generated": "2026-04-05",
+  "generated_time": "2026-04-05 04:28:21",
+  "run_label": "India Market Close \u2014 2026-04-05",
   "current": {
     "gcpi_score": 26.0,
     "effective_gcpi": 29.11,
     "grci_score": 0.2,
-    "cci_score": 0.4807,
+    "cci_score": 0.3406,
     "cci_direction": "MIXED",
     "alpha_gcpi": 0.4666254125895388,
     "phase": 1,
     "active_rule": "STANDARD MONITORING",
-    "rbi_room": 9.1302,
+    "rbi_room": 9.2918,
     "rbi_constraint": 1,
     "nifty_close": 22713.099609375,
     "sp500_close": 6582.68994140625,
     "dxy_close": 100.18599700927734,
-    "brent_close": 109.02999877929688,
+    "brent_close": 109.05000305175781,
     "vix_close": 23.8700008392334,
     "india_vix_close": 25.520000457763672,
     "usdinr_close": 92.66999816894531,
@@ -198,7 +198,8 @@
       "2026-04-01",
       "2026-04-02",
       "2026-04-03",
-      "2026-04-04"
+      "2026-04-04",
+      "2026-04-05"
     ],
     "gcpi": [
       15.64,
@@ -350,6 +351,7 @@
       29.98,
       25.79,
       25.68,
+      26.0,
       26.0
     ],
     "eff_gcpi": [
@@ -502,6 +504,7 @@
       33.58,
       28.88,
       28.77,
+      29.11,
       29.11
     ],
     "zones": {
@@ -525,7 +528,7 @@
     "current": {
       "gcpi": 26.0,
       "eff_gcpi": 29.11,
-      "date": "2026-04-04",
+      "date": "2026-04-05",
       "phase": 1
     }
   },
@@ -681,7 +684,8 @@
       "2026-04-01",
       "2026-04-02",
       "2026-04-03",
-      "2026-04-04"
+      "2026-04-04",
+      "2026-04-05"
     ],
     "grci": [
       0.4,
@@ -833,6 +837,7 @@
       0.2,
       0.2188,
       0.2,
+      0.2,
       0.2
     ],
     "zones": {
@@ -855,7 +860,7 @@
     },
     "current": {
       "grci": 0.2,
-      "date": "2026-04-04"
+      "date": "2026-04-05"
     }
   },
   "chart3_radar": {
@@ -876,7 +881,7 @@
       0.0799,
       0.09
     ],
-    "date": "2026-04-04",
+    "date": "2026-04-05",
     "alpha": 0.4666
   },
   "chart4_heatmap": {
@@ -920,12 +925,12 @@
       0.91,
       1.03,
       0.06,
-      1.11,
-      -1.04
+      1.12,
+      -0.88
     ],
     "oversold": [],
     "overbought": [],
-    "date": "2026-04-04"
+    "date": "2026-04-05"
   },
   "chart5_rsdm": {
     "title": "RSDM Key Pairs \u2014 Relative Strength",
@@ -1515,36 +1520,36 @@
         "cluster": "EM vs DM"
       }
     },
-    "date": "2026-04-04"
+    "date": "2026-04-05"
   },
   "chart6_cci": {
     "title": "CCI Commodity Snapshot",
     "segments": {
       "BRENT": {
-        "price": 109.02999877929688,
-        "z20": 1.11
+        "price": 109.05000305175781,
+        "z20": 1.12
       },
       "GOLD": {
-        "price": 4651.5,
-        "z20": -1.04
+        "price": 4702.7001953125,
+        "z20": -0.88
       },
       "COPPER": {
-        "price": 5.563000202178955,
-        "z20": -0.91
+        "price": 5.68149995803833,
+        "z20": -0.32
       },
       "WHEAT": {
-        "price": 598.25,
-        "z20": 0.38
+        "price": 597.75,
+        "z20": 0.35
       },
       "SOYBEAN": {
-        "price": 1163.5,
-        "z20": -0.37
+        "price": 1162.75,
+        "z20": -0.4
       }
     },
-    "cci_score": 0.4807,
+    "cci_score": 0.3406,
     "cci_direction": "MIXED",
-    "rbi_room": 9.1,
-    "date": "2026-04-04"
+    "rbi_room": 9.3,
+    "date": "2026-04-05"
   },
   "chart7_phase": {
     "title": "Phase History Timeline",
@@ -1698,7 +1703,8 @@
       "2026-04-01",
       "2026-04-02",
       "2026-04-03",
-      "2026-04-04"
+      "2026-04-04",
+      "2026-04-05"
     ],
     "phases": [
       1,
@@ -1847,6 +1853,7 @@
       2,
       2,
       2,
+      1,
       1,
       1,
       1,
@@ -2002,6 +2009,7 @@
       "STANDARD MONITORING",
       "STANDARD MONITORING",
       "STANDARD MONITORING",
+      "STANDARD MONITORING",
       "STANDARD MONITORING"
     ],
     "phase_names": {
@@ -2021,7 +2029,7 @@
       "6": "#8b5cf6"
     },
     "current_phase": 1,
-    "date": "2026-04-04"
+    "date": "2026-04-05"
   },
   "chart8_gfsi": {
     "title": "GFSI \u2014 Geopolitical Fracture Stress Index",
@@ -2052,7 +2060,7 @@
     "scores": [
       59.27
     ],
-    "date": "2026-04-04",
+    "date": "2026-04-05",
     "zones": {
       "low": [
         0,
@@ -2096,7 +2104,7 @@
       67.19,
       64.12
     ],
-    "date": "2026-04-04",
+    "date": "2026-04-05",
     "bands": {
       "contained": [
         0,
