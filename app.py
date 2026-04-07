@@ -1067,7 +1067,7 @@ with col_cci:
         {cci_html}
         <div style="margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--txt3);line-height:1.7;">
           Composite: {cci_val:.4f} · Classification: <span style="color:#fbbf24;">{cci_status.upper()}</span><br>
-          CCI &gt; 0.65 triggers GFSI multiplier on Effective GCPI
+          CCI amplifies Effective GCPI when commodity coherence is directionally aligned across segments
         </div>
       </div>
     </div>""", unsafe_allow_html=True)
