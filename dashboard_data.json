@@ -1,7 +1,7 @@
 {
   "generated": "2026-04-09",
   "generated_time": "2026-04-09 02:48:33",
-  "run_label": "India Market Close \u2014 2026-04-09",
+  "run_label": "Scheduled \u2014 09 Apr 2026 13:36 IST",
   "current": {
     "gcpi_score": 24.14,
     "effective_gcpi": 27.04,
@@ -2111,5 +2111,20 @@
         100
       ]
     }
-  }
+  },
+  "run_context": "scheduled_run",
+  "ai_context": "scheduled update context.",
+  "last_updated": "2026-04-09 13:36 IST",
+  "price_log": [
+    {
+      "date": "2026-04-09",
+      "time": "13:36 IST",
+      "context": "scheduled_run",
+      "nifty": null,
+      "sp500": null,
+      "dxy": null,
+      "brent": null,
+      "vix": null
+    }
+  ]
 }
