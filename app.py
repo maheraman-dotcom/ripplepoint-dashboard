@@ -681,7 +681,8 @@ st.markdown(f"""
     <strong>RIPPLEPOINT</strong> &nbsp;·&nbsp;
     Net Regime Signal &nbsp;·&nbsp;
     As of {as_of_date} &nbsp;·&nbsp;
-    Issue #{issue_num}
+    Issue #{issue_num} &nbsp;·&nbsp;
+    Last computed: {current.get('date', '—')}
     {f'&nbsp;·&nbsp; {run_label}' if run_label != '—' else ''}
   </div>
   <div style="display:flex;align-items:center;gap:14px;">
