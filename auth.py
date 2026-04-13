@@ -209,6 +209,10 @@ def supabase_sign_up(email, password, full_name):
 
 def supabase_sign_out():
     clear_session_cookie()
+    try:
+        st.query_params.clear()
+    except:
+        pass
     for key in ["rp_logged_in", "rp_user", "rp_token",
                 "_rp_token_persist", "_rp_user_persist"]:
         if key in st.session_state:
