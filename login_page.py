@@ -205,7 +205,6 @@ def render_login_page():
                             "for more information."
                         )
                     elif status == "approved":
-                       elif status == "approved":
                         st.session_state.rp_logged_in      = True
                         st.session_state.rp_user           = result
                         st.session_state.rp_token          = result.get("access_token")
