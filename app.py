@@ -135,31 +135,10 @@ st.set_page_config(
 )
 
 # ── AUTH IMPORTS + GATE ───────────────────────────────────────────────────────
-from auth import is_logged_in, current_user, is_approved, supabase_sign_out
+from auth import (is_logged_in, current_user, is_approved, supabase_sign_out,
+                  restore_session, persist_session)
 from login_page import render_login_page
-
-# ── F2: SESSION PERSISTENCE — restore session from query params or cookie ─────
-def restore_session():
-    """Try to restore session from stored token in session state."""
-    if st.session_state.get("rp_logged_in"):
-        return True
-    # Check if token was stored before rerun
-    token = st.session_state.get("_rp_token_persist")
-    user  = st.session_state.get("_rp_user_persist")
-    if token and user:
-        st.session_state.rp_logged_in = True
-        st.session_state.rp_token     = token
-        st.session_state.rp_user      = user
-        return True
-    return False
-
-def persist_session():
-    """Store session data for persistence across reruns."""
-    if st.session_state.get("rp_logged_in"):
-        st.session_state._rp_token_persist = st.session_state.get("rp_token")
-        st.session_state._rp_user_persist  = st.session_state.get("rp_user")
-
-# Attempt restore then check
+# ── F2: SESSION PERSISTENCE — restore from cookie ────────────────────────────
 restore_session()
 persist_session()
 
