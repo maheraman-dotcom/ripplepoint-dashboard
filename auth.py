@@ -67,10 +67,10 @@ def clear_session_cookie():
         pass
 
 def restore_session():
-    """Restore session from cookie, session state, or query params."""
+    """Restore session using query param token lookup against Supabase."""
     if st.session_state.get("rp_logged_in"):
         return True
-    # Try session state persist
+    # Try session state persist first
     token = st.session_state.get("_rp_token_persist")
     user  = st.session_state.get("_rp_user_persist")
     if token and user:
@@ -78,27 +78,44 @@ def restore_session():
         st.session_state.rp_token     = token
         st.session_state.rp_user      = user
         return True
-    # Try cookie
-    cookie_data = load_session_cookie()
-    if cookie_data and cookie_data.get("token"):
-        st.session_state.rp_logged_in      = True
-        st.session_state.rp_token          = cookie_data.get("token")
-        st.session_state._rp_token_persist = cookie_data.get("token")
-        st.session_state.rp_user           = cookie_data
-        st.session_state._rp_user_persist  = cookie_data
-        return True
-    # Try query param token fragment
+    # Try query param — verify token against Supabase
     try:
-        t = st.query_params.get("t", "")
-        if t and len(t) >= 10:
-            cookie_data = load_session_cookie()
-            if cookie_data and cookie_data.get("token", "").startswith(t):
-                st.session_state.rp_logged_in      = True
-                st.session_state.rp_token          = cookie_data.get("token")
-                st.session_state._rp_token_persist = cookie_data.get("token")
-                st.session_state.rp_user           = cookie_data
-                st.session_state._rp_user_persist  = cookie_data
-                return True
+        token_param = st.query_params.get("token", "")
+        if token_param and len(token_param) > 20:
+            r = requests.get(
+                f"{SUPABASE_URL}/auth/v1/user",
+                headers={
+                    "apikey": SUPABASE_ANON,
+                    "Authorization": f"Bearer {token_param}",
+                    "Content-Type": "application/json",
+                },
+                timeout=10
+            )
+            if r.status_code == 200:
+                user_data = r.json()
+                user_id = user_data.get("id", "")
+                r2 = requests.get(
+                    f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user_id}&select=*",
+                    headers=_service_headers(),
+                    timeout=10
+                )
+                if r2.status_code == 200 and r2.json():
+                    profile = r2.json()[0]
+                    if profile.get("status") == "approved":
+                        restored_user = {
+                            "access_token": token_param,
+                            "user_id":      user_id,
+                            "email":        profile.get("email", ""),
+                            "full_name":    profile.get("full_name", ""),
+                            "status":       "approved",
+                            "tier":         profile.get("tier", "none"),
+                        }
+                        st.session_state.rp_logged_in      = True
+                        st.session_state.rp_token          = token_param
+                        st.session_state._rp_token_persist = token_param
+                        st.session_state.rp_user           = restored_user
+                        st.session_state._rp_user_persist  = restored_user
+                        return True
     except:
         pass
     return False
