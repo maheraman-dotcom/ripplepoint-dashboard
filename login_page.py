@@ -204,7 +204,7 @@ def render_login_page():
                             "**Access Not Granted** — Contact maheraman@gmail.com "
                             "for more information."
                         )
-                   elif status == "approved":
+                    elif status == "approved":
                         token = result.get("access_token", "")
                         st.session_state.rp_logged_in      = True
                         st.session_state.rp_user           = result
