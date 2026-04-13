@@ -67,7 +67,7 @@ def clear_session_cookie():
         pass
 
 def restore_session():
-    """Restore session from cookie or session state."""
+    """Restore session from cookie, session state, or query params."""
     if st.session_state.get("rp_logged_in"):
         return True
     # Try session state persist
@@ -87,8 +87,21 @@ def restore_session():
         st.session_state.rp_user           = cookie_data
         st.session_state._rp_user_persist  = cookie_data
         return True
+    # Try query param token fragment
+    try:
+        t = st.query_params.get("t", "")
+        if t and len(t) >= 10:
+            cookie_data = load_session_cookie()
+            if cookie_data and cookie_data.get("token", "").startswith(t):
+                st.session_state.rp_logged_in      = True
+                st.session_state.rp_token          = cookie_data.get("token")
+                st.session_state._rp_token_persist = cookie_data.get("token")
+                st.session_state.rp_user           = cookie_data
+                st.session_state._rp_user_persist  = cookie_data
+                return True
+    except:
+        pass
     return False
-
 def persist_session():
     if st.session_state.get("rp_logged_in"):
         st.session_state._rp_token_persist = st.session_state.get("rp_token")
