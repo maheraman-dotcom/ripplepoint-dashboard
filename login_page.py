@@ -204,13 +204,14 @@ def render_login_page():
                             "**Access Not Granted** — Contact maheraman@gmail.com "
                             "for more information."
                         )
-                    elif status == "approved":
+                   elif status == "approved":
+                        token = result.get("access_token", "")
                         st.session_state.rp_logged_in      = True
                         st.session_state.rp_user           = result
-                        st.session_state.rp_token          = result.get("access_token")
-                        st.session_state._rp_token_persist = result.get("access_token")
+                        st.session_state.rp_token          = token
+                        st.session_state._rp_token_persist = token
                         st.session_state._rp_user_persist  = result
-                        st.query_params["t"] = result.get("access_token", "")[:20]
+                        st.query_params["token"] = token
                         st.rerun()
 
         # Forgot password link
