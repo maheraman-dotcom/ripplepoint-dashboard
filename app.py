@@ -437,7 +437,10 @@ button[aria-label="Close sidebar"] { display:none !important; }
 button[aria-label="Open sidebar"] { display:none !important; }
 #MainMenu,footer,header,
 [data-testid="stDecoration"],
-[data-testid="stToolbar"] { display:none !important; }
+[data-testid="stToolbar"],
+[data-testid="stSidebarNav"],
+[data-testid="stSidebarNavItems"],
+section[data-testid="stSidebar"] ul { display:none !important; }
 .block-container { padding:0 !important; max-width:100% !important; }
 [data-testid="stVerticalBlock"] { gap:0 !important; }
 .rp-panel { background:#111927; border:1px solid #1e2d42; border-radius:8px; overflow:hidden; margin-bottom:14px; }
