@@ -1,11 +1,11 @@
 {
   "generated": "2026-04-18",
-  "generated_time": "2026-04-18 07:43:57",
+  "generated_time": "2026-04-18 08:34:50",
   "run_label": "India Market Close \u2014 2026-04-18",
   "current": {
     "gcpi_score": 26.15,
     "effective_gcpi": 29.28,
-    "grci_score": 0.2938,
+    "grci_score": 0.5562,
     "cci_score": 0.2805,
     "cci_direction": "MIXED",
     "alpha_gcpi": 0.39157426557378217,
@@ -883,7 +883,7 @@
       0.2938,
       0.2938,
       0.2938,
-      0.2938
+      0.5562
     ],
     "zones": {
       "stable": [
@@ -904,7 +904,7 @@
       ]
     },
     "current": {
-      "grci": 0.2938,
+      "grci": 0.5562,
       "date": "2026-04-18"
     }
   },
