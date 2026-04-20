@@ -376,12 +376,12 @@ cci_metals   = cci_seg("COPPER",  0.58)
 cci_agri     = cci_seg("WHEAT",   0.61)
 cci_precious = cci_seg("GOLD",    0.55)
 
-# History for signal log
-hist_dates  = hist.get("dates",  [])
-hist_gcpi   = hist.get("gcpi",   [])
-hist_phases = hist.get("phases", [])
-hist_grci   = hist.get("grci",   [])
-hist_alpha  = hist.get("alpha",  [])
+# History for signal log — reading from correct chart keys
+hist_dates  = data.get("chart1_gcpi_trend", {}).get("dates",  [])
+hist_gcpi   = data.get("chart1_gcpi_trend", {}).get("gcpi",   [])
+hist_grci   = data.get("chart2_grci_trend", {}).get("grci",   [])
+hist_phases = data.get("chart7_phase",      {}).get("phases", [])
+hist_alpha  = data.get("chart2_grci_trend", {}).get("alpha",  [])
 history_rows = []
 if hist_dates and hist_gcpi:
     for i in range(max(0, len(hist_dates)-6), len(hist_dates)):
