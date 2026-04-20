@@ -229,6 +229,7 @@ def get_ai_narrative(gcpi, phase, grci, cci, alpha, run_context):
                     f"Generate the diagnostic regime narrative."
                 )
             }]
+        }
         r = requests.post(
             "https://api.anthropic.com/v1/messages",
             headers={"x-api-key": api_key, "anthropic-version": "2023-06-01",
