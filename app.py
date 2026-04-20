@@ -974,22 +974,22 @@ col_grci, col_cci = st.columns(2, gap="medium")
 
 with col_grci:
     grci_sensors = [
-        ("R1 Earnings",   gf("grci_r1",0.08), "Absent",
-         "Earnings revision breadth.\nConfirmed when upgrades > downgrades sustained."),
-        ("R2 Yield",      gf("grci_r2",0.12), "Absent",
-         "India-US yield spread recovery.\nConfirmed when spread > 300bps and rising."),
-        ("R3 FII Flow",   gf("grci_r3",0.05), "Absent",
-         "Foreign institutional investor net flows.\nConfirmed when FII net positive 15+ days."),
-        ("R4 Vol Crush",  gf("grci_r4",0.15), "Absent",
-         "Volatility compression signal.\nConfirmed when India VIX < 14 sustained."),
-        ("R5 Credit Ease",gf("grci_r5",0.10), "Absent",
-         "Credit spread tightening signal.\nConfirmed when HY spreads falling consistently."),
-        ("R6 Rupee",      gf("grci_r6",0.18), "Weak",
-         "Rupee stabilisation & appreciation.\nWeak when USD/INR declining from peak."),
-        ("R7 Momentum",   gf("grci_r7",0.12), "Absent",
-         "Price momentum across indices.\nConfirmed when NIFTY > 50D & 200D MA."),
-        ("R8 Breadth",    gf("grci_r8",0.20), "Weak",
-         "Market breadth recovery.\nWeak when advance-decline ratio improving."),
+        ("R1 Dollar Retreat",    gf("grci_r1",0.08), "Absent",
+         "DXY level and retreat.\nRecovery signal when DXY sustained below 98.0."),
+        ("R2 Yield Spread",      gf("grci_r2",0.12), "Absent",
+         "India-US yield spread expansion.\nConfirmed when spread > 300bps and rising."),
+        ("R3 FII Return",        gf("grci_r3",0.05), "Absent",
+         "FII systematic return — USDINR Z-score proxy.\nConfirmed when INR strengthening sustained."),
+        ("R4 Vol Compression",   gf("grci_r4",0.15), "Absent",
+         "Volatility compression — VIX and India VIX.\nConfirmed when VIX < 16 and India VIX < 14."),
+        ("R5 Liquidity Normal",  gf("grci_r5",0.10), "Absent",
+         "Liquidity normalisation — HY spreads.\nConfirmed when HY spreads tightening below 350bps."),
+        ("R6 DII Alignment",     gf("grci_r6",0.18), "Weak",
+         "DII alignment — Nifty + BankNifty Z-scores.\nWeak when both indices showing positive Z-score."),
+        ("R7 Structural Trend",  gf("grci_r7",0.12), "Absent",
+         "Structural trend — 200D Z-scores Nifty + SP500.\nConfirmed when both above 200D moving average."),
+        ("R8 CB Policy",         gf("grci_r8",0.20), "Weak",
+         "Central bank policy alignment — Fed Funds rate.\nConfirmed when Fed in active easing cycle below 3.0%."),
     ]
     grci_rows = ""
     for lbl, val, zone, tip in grci_sensors:
