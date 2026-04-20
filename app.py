@@ -142,6 +142,10 @@ from login_page import render_login_page
 restore_session()
 persist_session()
 
+# ── PAGE ROUTING — session state ─────────────────────────
+if "active_page" not in st.session_state:
+    st.session_state.active_page = "Net Regime Signal"
+
 if not is_logged_in() or not is_approved():
     render_login_page()
     st.stop()
