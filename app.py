@@ -380,6 +380,8 @@ cci_precious = cci_seg("GOLD",    0.55)
 hist_dates  = hist.get("dates",  [])
 hist_gcpi   = hist.get("gcpi",   [])
 hist_phases = hist.get("phases", [])
+hist_grci   = hist.get("grci",   [])
+hist_alpha  = hist.get("alpha",  [])
 history_rows = []
 if hist_dates and hist_gcpi:
     for i in range(max(0, len(hist_dates)-6), len(hist_dates)):
@@ -387,8 +389,8 @@ if hist_dates and hist_gcpi:
             history_rows.append({
                 "date":           hist_dates[i],
                 "gcpi":           hist_gcpi[i],
-                "grci":           grci_val,
-                "cronbach_alpha": alpha_val,
+                "grci":           hist_grci[i] if hist_grci and i < len(hist_grci) else grci_val,
+                "cronbach_alpha": hist_alpha[i] if hist_alpha and i < len(hist_alpha) else alpha_val,
                 "phase_number":   hist_phases[i] if hist_phases and i < len(hist_phases) else phase_num,
                 "phase_name":     phase_name_map.get(str(int(hist_phases[i])) if hist_phases and i < len(hist_phases) else phase_num, phase_name),
                 "regime_signal":  active_rule,
