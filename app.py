@@ -204,10 +204,16 @@ def get_ai_narrative(gcpi, phase, grci, cci, alpha, run_context):
         payload = {
             "model": "claude-sonnet-4-20250514",
             "max_tokens": 280,
-            "system": (
+         "system": (
                 f"You are RIPPLEPOINT, a macro intelligence engine for Ripple Axis Systems. "
                 f"You are viewing the {run_context} update. "
                 f"Write 3 sentences of precise, institutional-grade macro narrative. "
+                f"All language must be strictly diagnostic and observational. "
+                f"Use phrases like 'historically associated with', 'consistent with this regime', "
+                f"'signals', 'indicates', 'suggests'. "
+                f"NEVER use prescriptive language. NEVER say: 'you should', 'buy', 'sell', "
+                f"'deploy capital', 'positioning strategies', 'profit opportunities', "
+                f"'tactical windows', 'nimble capital', or any trade recommendation. "
                 f"No hedging. No bullet points. No headers. Pure prose only."
             ),
             "messages": [{
@@ -216,10 +222,9 @@ def get_ai_narrative(gcpi, phase, grci, cci, alpha, run_context):
                     f"Current reading: GCPI {gcpi:.1f}, "
                     f"Phase {phase}, GRCI {grci:.3f}, "
                     f"CCI {cci:.4f}, Alpha {alpha:.3f}. "
-                    f"Generate the regime narrative."
+                    f"Generate the diagnostic regime narrative."
                 )
             }]
-        }
         r = requests.post(
             "https://api.anthropic.com/v1/messages",
             headers={"x-api-key": api_key, "anthropic-version": "2023-06-01",
