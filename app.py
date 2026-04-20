@@ -646,8 +646,7 @@ with st.sidebar:
                            color:{col};letter-spacing:0.03em;">{item}{tag}</span>
             </div>""", unsafe_allow_html=True)
             if is_live and not is_active:
-                if st.button(item, key=f"nav_{item}",
-                             label_visibility="collapsed"):
+                if st.button(item, key=f"nav_{item}"):
                     st.session_state.active_page = item
                     st.rerun()
 
