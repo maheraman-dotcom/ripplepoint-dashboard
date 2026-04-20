@@ -675,11 +675,52 @@ with st.sidebar:
       </div>
     </div>""", unsafe_allow_html=True)
 
+# ═══════════════════════════════════════════════════════════
+# PAGE ROUTER
+# ═══════════════════════════════════════════════════════════
+_coming_soon_pages = {
+    "Global Stretch Map":  "Full global Z-score heatmap with 46-ticker stretch matrix.",
+    "RSDM Pair Matrix":    "Relative Strength Divergence Matrix — 1,035 pair ratios with cluster mapping.",
+    "Macro Anchors":       "Key macro anchor levels — yield curves, FX pivots, commodity thresholds.",
+    "GCPI Diagnostic":     "Full GCPI drill-down — D1 through D6 dimension detail with historical context.",
+    "GRCI Diagnostic":     "GRCI sensor detail — R1 through R8 with confirmation rule tracker.",
+    "CCI Commodities":     "CCI commodity intelligence — Energy, Precious, Base Metals, Agri, Industrial.",
+    "TRM — Ripple Chain":  "Trigger Ripple Model — Reservoir, Ignition, Transmission, Wave cascade detail.",
+    "Weekly Report":       "PDF report download — generated weekly from full engine scores.",
+    "🇺🇸 US Lens":         "US market lens — Fed policy, Treasury curve, equity regime diagnostics.",
+    "🌏 EM Lens":          "Emerging market lens — EM-DM divergence, capital flow stress, contagion signals.",
+}
+
+if st.session_state.active_page in _coming_soon_pages:
+    _desc = _coming_soon_pages[st.session_state.active_page]
+    st.markdown(f"""
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                min-height:60vh;padding:60px 40px;text-align:center;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.25em;
+                  color:#334155;text-transform:uppercase;margin-bottom:16px;">
+        RIPPLEPOINT · {st.session_state.active_page.upper()}
+      </div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:0.06em;
+                  color:#1e2d42;margin-bottom:20px;">
+        COMING IN MAY 2026
+      </div>
+      <div style="font-family:'Crimson Pro',Georgia,serif;font-size:16px;color:#475569;
+                  max-width:480px;line-height:1.7;margin-bottom:32px;">
+        {_desc}
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.15em;
+                  color:#1e2d42;text-transform:uppercase;">
+        React migration · Full drill-down pages · May 2026
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+    st.stop()
 
 # ═══════════════════════════════════════════════════════════
 # MAIN CONTENT
 # ═══════════════════════════════════════════════════════════
 top_bord = phase_color(phase_num)
+
 
 st.markdown(f"""
 <div class="rp-topbar">
