@@ -620,22 +620,35 @@ with st.sidebar:
         ("Output Lens",["🇮🇳 India Lens", "🇺🇸 US Lens", "🌏 EM Lens"]),
     ]
 
+  # Pages that are live vs coming soon
+    live_pages = {"Net Regime Signal", "Scenario Matrix",
+                  "Signal Log", "🇮🇳 India Lens"}
+
     for section, items in nav_items:
         st.markdown(f'<div style="padding:2px 18px;"><div class="sb-nav-section">{section}</div></div>',
                     unsafe_allow_html=True)
         for item in items:
-            is_active = (item == "Net Regime Signal") or (item == "🇮🇳 India Lens")
+            is_active = (item == st.session_state.active_page)
+            is_live   = (item in live_pages)
             bg     = "rgba(59,130,246,0.08)" if is_active else "transparent"
-            col    = "#60a5fa" if is_active else "#94a3b8"
+            col    = "#60a5fa" if is_active else "#94a3b8" if is_live else "#334155"
             border = "#3b82f6" if is_active else "transparent"
-            dot_c  = "#60a5fa" if is_active else "#64748b"
+            dot_c  = "#60a5fa" if is_active else "#64748b" if is_live else "#1e2d42"
+            tag    = "" if is_live else \
+                     '<span style="font-family:IBM Plex Mono,monospace;font-size:8px;' \
+                     'color:#334155;letter-spacing:0.08em;margin-left:6px;">SOON</span>'
             st.markdown(f"""
             <div style="display:flex;align-items:center;gap:10px;padding:8px 18px;
                         background:{bg};border-left:3px solid {border};cursor:pointer;">
               <div style="width:6px;height:6px;border-radius:50%;background:{dot_c};flex-shrink:0;"></div>
               <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;
-                           color:{col};letter-spacing:0.03em;">{item}</span>
+                           color:{col};letter-spacing:0.03em;">{item}{tag}</span>
             </div>""", unsafe_allow_html=True)
+            if is_live and not is_active:
+                if st.button(item, key=f"nav_{item}",
+                             label_visibility="collapsed"):
+                    st.session_state.active_page = item
+                    st.rerun()
 
     admin_emails = os.environ.get("ADMIN_EMAILS", "").split(",")
     if user.get("email","").strip() in [e.strip() for e in admin_emails]:
