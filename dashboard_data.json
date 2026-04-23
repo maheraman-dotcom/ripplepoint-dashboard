@@ -1,7 +1,7 @@
 {
-  "generated": "2026-04-22",
+  "generated": "2026-04-23",
   "generated_time": "2026-04-21 04:16:08",
-  "run_label": "17:00 IST \u2014 India Markets Close \u2014 22 Apr 2026",
+  "run_label": "Scheduled \u2014 23 Apr 2026 11:04 IST",
   "current": {
     "gcpi_score": 26.39,
     "effective_gcpi": 29.55,
@@ -2261,9 +2261,9 @@
       ]
     }
   },
-  "run_context": "india_close_5pm_IST",
-  "ai_context": "India market close context. NSE/BSE have closed for the day. Analyse the day's price action and its regime implications.",
-  "last_updated": "2026-04-22 18:09 IST",
+  "run_context": "scheduled_run",
+  "ai_context": "scheduled update context.",
+  "last_updated": "2026-04-23 11:04 IST",
   "price_log": [
     {
       "date": "2026-04-21",
@@ -2299,6 +2299,16 @@
       "date": "2026-04-22",
       "time": "18:09 IST",
       "context": "india_close_5pm_IST",
+      "nifty": null,
+      "sp500": null,
+      "dxy": null,
+      "brent": null,
+      "vix": null
+    },
+    {
+      "date": "2026-04-23",
+      "time": "11:04 IST",
+      "context": "scheduled_run",
       "nifty": null,
       "sp500": null,
       "dxy": null,
