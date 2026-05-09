@@ -1,25 +1,25 @@
 {
-  "generated": "2026-05-08",
-  "generated_time": "2026-05-08 05:27:29",
-  "run_label": "17:00 IST \u2014 India Markets Close \u2014 08 May 2026",
+  "generated": "2026-05-09",
+  "generated_time": "2026-05-09 10:20:24",
+  "run_label": "India Market Close \u2014 2026-05-09",
   "current": {
-    "gcpi_score": 28.58,
-    "effective_gcpi": 32.01,
-    "grci_score": 0.5312,
-    "cci_score": 0.3407,
+    "gcpi_score": 28.56,
+    "effective_gcpi": 31.98,
+    "grci_score": 0.5688,
+    "cci_score": 0.4155,
     "cci_direction": "MIXED",
-    "alpha_gcpi": 0.2510084856270699,
+    "alpha_gcpi": 0.24378263924562837,
     "phase": 1,
     "active_rule": "STANDARD MONITORING",
-    "rbi_room": 8.4858,
+    "rbi_room": 5.118200000000001,
     "rbi_constraint": 1,
-    "nifty_close": 24326.650390625,
-    "sp500_close": 7337.10986328125,
-    "dxy_close": 98.25,
-    "brent_close": 100.05999755859375,
-    "vix_close": 17.079999923706055,
-    "india_vix_close": 16.6200008392334,
-    "usdinr_close": 94.60800170898438,
+    "nifty_close": 24176.150390625,
+    "sp500_close": 7398.93017578125,
+    "dxy_close": 97.83999633789062,
+    "brent_close": 101.29000091552734,
+    "vix_close": 17.190000534057617,
+    "india_vix_close": 16.84000015258789,
+    "usdinr_close": 94.47000122070312,
     "oversold_count": 0,
     "spring_count": 2,
     "gfsi_score": null,
@@ -210,7 +210,7 @@
       "2026-04-17",
       "2026-04-18",
       "2026-04-20",
-      "2026-05-08"
+      "2026-05-09"
     ],
     "gcpi": [
       15.64,
@@ -374,7 +374,7 @@
       20.07,
       26.15,
       25.53,
-      28.58
+      28.56
     ],
     "eff_gcpi": [
       16.42,
@@ -538,7 +538,7 @@
       22.47,
       29.28,
       28.6,
-      32.01
+      31.98
     ],
     "zones": {
       "green": [
@@ -559,9 +559,9 @@
       ]
     },
     "current": {
-      "gcpi": 28.58,
-      "eff_gcpi": 32.01,
-      "date": "2026-05-08",
+      "gcpi": 28.56,
+      "eff_gcpi": 31.98,
+      "date": "2026-05-09",
       "phase": 1
     }
   },
@@ -729,7 +729,7 @@
       "2026-04-17",
       "2026-04-18",
       "2026-04-20",
-      "2026-05-08"
+      "2026-05-09"
     ],
     "grci": [
       0.4,
@@ -893,7 +893,7 @@
       0.2938,
       0.2938,
       0.5375,
-      0.5312
+      0.5688
     ],
     "alpha": [
       0.732,
@@ -1057,7 +1057,7 @@
       0.677,
       0.3916,
       0.386,
-      0.251
+      0.2438
     ],
     "zones": {
       "stable": [
@@ -1078,9 +1078,9 @@
       ]
     },
     "current": {
-      "grci": 0.5312,
-      "alpha": 0.2510084856270699,
-      "date": "2026-05-08"
+      "grci": 0.5688,
+      "alpha": 0.24378263924562837,
+      "date": "2026-05-09"
     }
   },
   "chart3_radar": {
@@ -1095,14 +1095,14 @@
     ],
     "scores": [
       0.8167,
-      0.175,
-      0.0019,
-      0.2805,
-      0.2608,
+      0.1422,
+      0.0024,
+      0.3034,
+      0.2742,
       0.09
     ],
-    "date": "2026-05-08",
-    "alpha": 0.251
+    "date": "2026-05-09",
+    "alpha": 0.2438
   },
   "chart4_heatmap": {
     "title": "Global Stretch Heatmap \u2014 Z-Scores (20D)",
@@ -1128,25 +1128,25 @@
       "GOLD"
     ],
     "z_scores": [
-      1.03,
-      0.61,
-      2.38,
-      2.85,
-      2.27,
-      1.75,
-      -0.22,
-      1.3,
-      2.72,
-      2.02,
+      0.84,
+      0.31,
+      2.54,
+      3.09,
+      2.4,
+      1.36,
+      -0.41,
+      0.98,
+      2.7,
+      1.67,
       3.44,
-      2.46,
+      2.7,
       1.69,
-      0.92,
-      -0.54,
-      -1.33,
-      1.26,
-      -0.19,
-      -0.33
+      0.24,
+      -0.43,
+      -1.73,
+      1.13,
+      -0.03,
+      -0.24
     ],
     "oversold": [],
     "overbought": [
@@ -1154,11 +1154,10 @@
       "NASDAQ100",
       "RUSSELL2000",
       "NIKKEI225",
-      "HANGSENG",
       "KOSPI",
       "MSCI_EM"
     ],
-    "date": "2026-05-08"
+    "date": "2026-05-09"
   },
   "chart5_rsdm": {
     "title": "RSDM Key Pairs \u2014 Relative Strength",
@@ -1472,36 +1471,36 @@
         "cluster": "EM vs DM"
       }
     },
-    "date": "2026-05-08"
+    "date": "2026-05-09"
   },
   "chart6_cci": {
     "title": "CCI Commodity Snapshot",
     "segments": {
       "BRENT": {
-        "price": 100.05999755859375,
-        "z20": -0.19
+        "price": 101.29000091552734,
+        "z20": -0.03
       },
       "GOLD": {
-        "price": 4699.7998046875,
-        "z20": -0.33
+        "price": 4720.39990234375,
+        "z20": -0.24
       },
       "COPPER": {
-        "price": 6.127500057220459,
-        "z20": 1.55
+        "price": 6.249000072479248,
+        "z20": 1.94
       },
       "WHEAT": {
-        "price": 601.75,
-        "z20": 0.5
+        "price": 607.5,
+        "z20": 0.97
       },
       "SOYBEAN": {
-        "price": 1177.0,
-        "z20": 0.17
+        "price": 1194.25,
+        "z20": 1.01
       }
     },
-    "cci_score": 0.3407,
+    "cci_score": 0.4155,
     "cci_direction": "MIXED",
-    "rbi_room": 8.5,
-    "date": "2026-05-08"
+    "rbi_room": 5.1,
+    "date": "2026-05-09"
   },
   "chart7_phase": {
     "title": "Phase History Timeline",
@@ -1667,7 +1666,7 @@
       "2026-04-17",
       "2026-04-18",
       "2026-04-20",
-      "2026-05-08"
+      "2026-05-09"
     ],
     "phases": [
       1,
@@ -2014,38 +2013,38 @@
       "6": "#8b5cf6"
     },
     "current_phase": 1,
-    "date": "2026-05-08"
+    "date": "2026-05-09"
   },
   "chart8_gfsi": {
     "title": "GFSI \u2014 Geopolitical Fracture Stress Index",
-    "current_score": 60.46,
-    "current_zone": "HIGH",
-    "multiplier": 1.1,
-    "effective_gcpi_gfsi": 40.37,
+    "current_score": 53.23,
+    "current_zone": "MODERATE",
+    "multiplier": 1.05,
+    "effective_gcpi_gfsi": 38.54,
     "dimensions": {
-      "D1 Supply Chain": 0.632,
-      "D2 CB Constraint": 0.5639,
-      "D3 Capital Flight": 0.6335,
-      "D4 Contagion": 0.7143,
-      "D5 Resolution": 0.4286
+      "D1 Supply Chain": 0.6296,
+      "D2 CB Constraint": 0.5943,
+      "D3 Capital Flight": 0.4944,
+      "D4 Contagion": 0.5714,
+      "D5 Resolution": 0.2857
     },
     "clusters": {
-      "territorial_escalation": 6.51,
-      "sanctions_trade_politics": 6.91,
-      "energy_supplychain": 5.82,
+      "territorial_escalation": 6.6,
+      "sanctions_trade_politics": 5.63,
+      "energy_supplychain": 6.57,
       "strategic_tech_economic": 5.0,
-      "epidemic_climate_disaster": 5.89,
-      "cyber_infrastructure": 4.79,
-      "regime_bipartisan_global": 7.61
+      "epidemic_climate_disaster": 5.9,
+      "cyber_infrastructure": 5.0,
+      "regime_bipartisan_global": 3.47
     },
-    "data_source": "RSS + VADER (6 feeds \u00b7 157 headlines \u00b7 84 matched)",
+    "data_source": "RSS + VADER (6 feeds \u00b7 164 headlines \u00b7 89 matched)",
     "dates": [
-      "2026-05-07"
+      "2026-05-08"
     ],
     "scores": [
-      60.46
+      53.23
     ],
-    "date": "2026-05-08",
+    "date": "2026-05-09",
     "zones": {
       "low": [
         0,
@@ -2067,12 +2066,12 @@
   },
   "chart9_trm": {
     "title": "TRM \u2014 Trigger Ripple Model",
-    "trm_score": 64.06,
+    "trm_score": 63.34,
     "magnitude_band": "MODERATE",
     "magnitude_range": "10\u201318%",
     "reservoir_level": "MEDIUM",
     "reservoir_score": 0.5,
-    "ignition_probability": 0.5418,
+    "ignition_probability": 0.5129,
     "ignition_label": "ELEVATED",
     "transmission": 1.0,
     "primary_channel": "CORN \u2192 USDINR",
@@ -2092,7 +2091,8 @@
       "2026-04-28",
       "2026-05-04",
       "2026-05-06",
-      "2026-05-07"
+      "2026-05-07",
+      "2026-05-08"
     ],
     "scores": [
       67.19,
@@ -2105,9 +2105,10 @@
       63.42,
       63.92,
       63.71,
-      64.06
+      64.06,
+      63.34
     ],
-    "date": "2026-05-08",
+    "date": "2026-05-09",
     "bands": {
       "contained": [
         0,
@@ -2130,30 +2131,5 @@
         100
       ]
     }
-  },
-  "run_context": "india_close_5pm_IST",
-  "ai_context": "India market close context. NSE/BSE have closed for the day. Analyse the day's price action and its regime implications.",
-  "last_updated": "2026-05-08 18:23 IST",
-  "price_log": [
-    {
-      "date": "2026-05-08",
-      "time": "11:02 IST",
-      "context": "scheduled_run",
-      "nifty": null,
-      "sp500": null,
-      "dxy": null,
-      "brent": null,
-      "vix": null
-    },
-    {
-      "date": "2026-05-08",
-      "time": "18:23 IST",
-      "context": "india_close_5pm_IST",
-      "nifty": null,
-      "sp500": null,
-      "dxy": null,
-      "brent": null,
-      "vix": null
-    }
-  ]
+  }
 }
