@@ -1,14 +1,14 @@
 {
   "generated": "2026-05-09",
-  "generated_time": "2026-05-09 10:20:24",
+  "generated_time": "2026-05-09 10:24:13",
   "run_label": "India Market Close \u2014 2026-05-09",
   "current": {
-    "gcpi_score": 28.56,
-    "effective_gcpi": 31.98,
+    "gcpi_score": 28.84,
+    "effective_gcpi": 32.3,
     "grci_score": 0.5688,
     "cci_score": 0.4155,
     "cci_direction": "MIXED",
-    "alpha_gcpi": 0.24378263924562837,
+    "alpha_gcpi": 0.24211276456889652,
     "phase": 1,
     "active_rule": "STANDARD MONITORING",
     "rbi_room": 5.118200000000001,
@@ -21,7 +21,7 @@
     "india_vix_close": 16.84000015258789,
     "usdinr_close": 94.47000122070312,
     "oversold_count": 0,
-    "spring_count": 2,
+    "spring_count": 3,
     "gfsi_score": null,
     "gfsi_zone": "PENDING",
     "gfsi_multiplier": 1.0,
@@ -374,7 +374,7 @@
       20.07,
       26.15,
       25.53,
-      28.56
+      28.84
     ],
     "eff_gcpi": [
       16.42,
@@ -538,7 +538,7 @@
       22.47,
       29.28,
       28.6,
-      31.98
+      32.3
     ],
     "zones": {
       "green": [
@@ -559,8 +559,8 @@
       ]
     },
     "current": {
-      "gcpi": 28.56,
-      "eff_gcpi": 31.98,
+      "gcpi": 28.84,
+      "eff_gcpi": 32.3,
       "date": "2026-05-09",
       "phase": 1
     }
@@ -1057,7 +1057,7 @@
       0.677,
       0.3916,
       0.386,
-      0.2438
+      0.2421
     ],
     "zones": {
       "stable": [
@@ -1079,7 +1079,7 @@
     },
     "current": {
       "grci": 0.5688,
-      "alpha": 0.24378263924562837,
+      "alpha": 0.24211276456889652,
       "date": "2026-05-09"
     }
   },
@@ -1097,12 +1097,12 @@
       0.8167,
       0.1422,
       0.0024,
-      0.3034,
+      0.3259,
       0.2742,
       0.09
     ],
     "date": "2026-05-09",
-    "alpha": 0.2438
+    "alpha": 0.2421
   },
   "chart4_heatmap": {
     "title": "Global Stretch Heatmap \u2014 Z-Scores (20D)",
