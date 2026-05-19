@@ -1,7 +1,7 @@
 {
   "generated": "2026-05-19",
   "generated_time": "2026-05-19 07:11:40",
-  "run_label": "India Market Close \u2014 2026-05-19",
+  "run_label": "Scheduled \u2014 19 May 2026 19:40 IST",
   "current": {
     "gcpi_score": 29.68,
     "effective_gcpi": 33.24,
@@ -2081,5 +2081,20 @@
         100
       ]
     }
-  }
+  },
+  "run_context": "scheduled_run",
+  "ai_context": "scheduled update context.",
+  "last_updated": "2026-05-19 19:40 IST",
+  "price_log": [
+    {
+      "date": "2026-05-19",
+      "time": "19:40 IST",
+      "context": "scheduled_run",
+      "nifty": null,
+      "sp500": null,
+      "dxy": null,
+      "brent": null,
+      "vix": null
+    }
+  ]
 }
