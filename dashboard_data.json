@@ -1,7 +1,7 @@
 {
-  "generated": "2026-08-06",
+  "generated": "2026-08-07",
   "generated_time": "2026-05-21 05:55:03",
-  "run_label": "17:00 IST \u2014 India Markets Close \u2014 06 Aug 2026",
+  "run_label": "08:30 IST \u2014 Global Markets Open \u2014 07 Aug 2026",
   "current": {
     "gcpi_score": 29.38,
     "effective_gcpi": 32.9,
@@ -2068,20 +2068,10 @@
       ]
     }
   },
-  "run_context": "india_close_5pm_IST",
-  "ai_context": "India market close context. NSE/BSE have closed for the day. Analyse the day's price action and its regime implications.",
-  "last_updated": "2026-08-06 18:40 IST",
+  "run_context": "global_open_830am_IST",
+  "ai_context": "global market open context. Asian markets have closed, European markets are opening, US futures are active.",
+  "last_updated": "2026-08-07 10:26 IST",
   "price_log": [
-    {
-      "date": "2026-07-31",
-      "time": "11:46 IST",
-      "context": "scheduled_run",
-      "nifty": null,
-      "sp500": null,
-      "dxy": null,
-      "brent": null,
-      "vix": null
-    },
     {
       "date": "2026-07-31",
       "time": "18:44 IST",
@@ -2166,6 +2156,16 @@
       "date": "2026-08-06",
       "time": "18:40 IST",
       "context": "india_close_5pm_IST",
+      "nifty": null,
+      "sp500": null,
+      "dxy": null,
+      "brent": null,
+      "vix": null
+    },
+    {
+      "date": "2026-08-07",
+      "time": "10:26 IST",
+      "context": "global_open_830am_IST",
       "nifty": null,
       "sp500": null,
       "dxy": null,
