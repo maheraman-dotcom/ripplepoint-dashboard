@@ -1,7 +1,7 @@
 {
-  "generated": "2026-08-28",
+  "generated": "2026-08-29",
   "generated_time": "2026-05-21 05:55:03",
-  "run_label": "Scheduled \u2014 28 Aug 2026 20:38 IST",
+  "run_label": "Scheduled \u2014 29 Aug 2026 02:58 IST",
   "current": {
     "gcpi_score": 29.38,
     "effective_gcpi": 32.9,
@@ -2070,18 +2070,8 @@
   },
   "run_context": "scheduled_run",
   "ai_context": "scheduled update context.",
-  "last_updated": "2026-08-28 20:38 IST",
+  "last_updated": "2026-08-29 02:58 IST",
   "price_log": [
-    {
-      "date": "2026-08-21",
-      "time": "17:22 IST",
-      "context": "india_close_5pm_IST",
-      "nifty": null,
-      "sp500": null,
-      "dxy": null,
-      "brent": null,
-      "vix": null
-    },
     {
       "date": "2026-08-24",
       "time": "09:26 IST",
@@ -2165,6 +2155,16 @@
     {
       "date": "2026-08-28",
       "time": "20:38 IST",
+      "context": "scheduled_run",
+      "nifty": null,
+      "sp500": null,
+      "dxy": null,
+      "brent": null,
+      "vix": null
+    },
+    {
+      "date": "2026-08-29",
+      "time": "02:58 IST",
       "context": "scheduled_run",
       "nifty": null,
       "sp500": null,
